@@ -617,6 +617,112 @@
                         <button class="btn-toggle" id="btn-sync" onclick="manualSync()">Actualizar</button>
                     </div>
                 </div>
+
+                <div class="settings-container" style="margin-top: 20px;">
+                    <h3>Gestión de Datos</h3>
+
+                    <div class="setting-item">
+                        <span>Conceptos de Pago</span>
+                        <button class="btn-toggle" onclick="openConceptManager()">Gestionar</button>
+                    </div>
+
+                    <div class="setting-item">
+                        <span>Copia de Seguridad</span>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn-toggle" onclick="exportData()"
+                                title="Descargar archivo JSON">Exportar</button>
+                            <label class="btn-toggle" style="cursor:pointer; position:relative;"
+                                title="Cargar archivo JSON">
+                                Importar
+                                <input type="file" id="import-file" onchange="importData(this)"
+                                    style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;"
+                                    accept=".json">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CONCEPT MANAGER (Hidden initially) -->
+            <div id="concept-manager" class="view-section">
+                <div class="top-bar">
+                    <button onclick="closeConceptManager()"
+                        style="background:none; border:none; color:var(--text-primary); font-size:24px; cursor:pointer;">←</button>
+                    <h2>Conceptos de Pago</h2>
+                    <button onclick="openEditModal()"
+                        style="background:var(--accent); color:white; border:none; width:36px; height:36px; border-radius:50%; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;">+</button>
+                </div>
+                <div class="checklist-container" id="concepts-list" style="padding-top:20px;">
+                    <!-- Concepts injected by JS -->
+                </div>
+            </div>
+
+            <!-- MODAL: EDIT CONCEPT -->
+            <div id="edit-modal"
+                style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
+                <div
+                    style="background:var(--bg-panel); padding:20px; border-radius:12px; width:90%; max-width:400px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top:0; color:var(--text-primary);">Editar Concepto</h3>
+
+                    <input type="hidden" id="edit-id">
+
+                    <div style="margin-bottom:15px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Nombre</label>
+                        <input type="text" id="edit-nombre" class="agenda-input" style="width:100%;"
+                            placeholder="Ej. Netflix">
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <div style="flex:1;">
+                            <label
+                                style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Día
+                                Inicio</label>
+                            <input type="number" id="edit-inicio" class="agenda-input" style="width:100%;" min="1"
+                                max="31">
+                        </div>
+                        <div style="flex:1;">
+                            <label
+                                style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Día
+                                Fin</label>
+                            <input type="number" id="edit-fin" class="agenda-input" style="width:100%;" min="1"
+                                max="31">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="edit-finMes"
+                                style="width:18px; height:18px; accent-color:var(--accent);">
+                            <span style="color:var(--text-primary); font-size:14px;">Pagar a Fin de Mes</span>
+                        </label>
+                    </div>
+
+                    <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
+
+                    <div style="margin-bottom:15px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Válido
+                            Desde (Mes/Año)</label>
+                        <input type="month" id="edit-validFrom" class="agenda-input" style="width:100%;">
+                    </div>
+
+                    <div style="margin-bottom:20px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Válido
+                            Hasta (Opcional)</label>
+                        <input type="month" id="edit-validUntil" class="agenda-input" style="width:100%;">
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px;">
+                        <button onclick="closeEditModal()" class="btn-toggle"
+                            style="background:transparent; color:var(--text-secondary); border:1px solid var(--border-color);">Cancelar</button>
+                        <button onclick="saveConcept()" class="btn-toggle"
+                            style="background:var(--accent); color:white;">Guardar</button>
+                        <button onclick="deleteConcept()" id="btn-delete-concept" class="btn-toggle"
+                            style="background:#ef5350; color:white; margin-right:auto;">Eliminar</button>
+                    </div>
+                </div>
             </div>
 
         </main>
@@ -624,7 +730,7 @@
 
     <script>
         /* --- DATA --- */
-        const pagos = [
+        const defaultPagos = [
             { nombre: "BBVA Tarjeta Crédito", inicio: 1, fin: 15 },
             { nombre: "RappiCard", inicio: 1, fin: 9 },
             { nombre: "Seguro Vehicular", inicio: 10, fin: 15 },
@@ -697,9 +803,11 @@
             if (viewName === 'checklist') {
                 pageTitle.textContent = "Lista de Pagos";
                 dateControls.style.display = 'flex';
+                cargar(); // Refresh list just in case
             } else if (viewName === 'calendar') {
                 pageTitle.textContent = "Calendario Mensual";
                 dateControls.style.display = 'flex';
+                cargar(); // Refresh calendar just in case
             } else if (viewName === 'agenda') {
                 pageTitle.textContent = "Mi Agenda";
                 dateControls.style.display = 'none';
@@ -708,6 +816,237 @@
                 pageTitle.textContent = "Configuración";
                 dateControls.style.display = 'none';
             }
+        }
+
+        /* --- PAYMENT CONCEPTS MANAGEMENT --- */
+        function getConcepts() {
+            let concepts = JSON.parse(localStorage.getItem("concepts"));
+            if (!concepts) {
+                // Initialize with default data + IDs and Default Dates
+                concepts = defaultPagos.map((p, idx) => ({
+                    ...p,
+                    id: Date.now() + idx,
+                    validFrom: "2024-01", // Default start
+                    validUntil: null // Indefinite
+                }));
+                localStorage.setItem("concepts", JSON.stringify(concepts));
+            }
+            return concepts;
+        }
+
+        function saveConcepts(concepts) {
+            localStorage.setItem("concepts", JSON.stringify(concepts));
+            syncCloud('concepts_update', concepts);
+        }
+
+        function openConceptManager() {
+            document.getElementById('settings').style.display = 'none';
+            document.getElementById('concept-manager').style.display = 'block';
+            document.getElementById('concept-manager').classList.add('active');
+            renderConceptsList();
+        }
+
+        function closeConceptManager() {
+            document.getElementById('concept-manager').style.display = 'none';
+            document.getElementById('concept-manager').classList.remove('active');
+            document.getElementById('settings').style.display = 'block';
+            document.getElementById('settings').classList.add('active');
+            cargar(); // Refresh main views with potential changes
+        }
+
+        function renderConceptsList() {
+            const list = document.getElementById("concepts-list");
+            list.innerHTML = "";
+            const concepts = getConcepts();
+
+            if (concepts.length === 0) {
+                list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-secondary)">No hay conceptos.</div>`;
+                return;
+            }
+
+            concepts.forEach(c => {
+                const div = document.createElement("div");
+                div.className = "item";
+                div.style.cursor = "pointer";
+                div.onclick = (e) => {
+                    // Prevent triggering if clicking something else inside (if exists)
+                    openEditModal(c.id);
+                };
+
+                let periodText = `<small style="display:block; color:var(--text-secondary); font-size:11px;">Desde: ${c.validFrom}`;
+                if (c.validUntil) periodText += ` · Hasta: ${c.validUntil}`;
+                else periodText += ` · Indefinido`;
+                periodText += `</small>`;
+
+                div.innerHTML = `
+                    <div style="flex:1;">
+                        <span style="font-weight:500">${c.nombre}</span>
+                        ${periodText}
+                    </div>
+                    <span style="font-size:12px; color:var(--text-secondary)">Día ${c.inicio}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function openEditModal(id = null) {
+            const modal = document.getElementById("edit-modal");
+            const concepts = getConcepts();
+
+            document.getElementById("edit-id").value = id || "";
+
+            if (id) {
+                const c = concepts.find(x => x.id == id);
+                if (c) {
+                    document.getElementById("edit-nombre").value = c.nombre;
+                    document.getElementById("edit-inicio").value = c.inicio;
+                    document.getElementById("edit-fin").value = c.fin || "";
+                    document.getElementById("edit-finMes").checked = !!c.finMes;
+                    document.getElementById("edit-validFrom").value = c.validFrom || "";
+                    document.getElementById("edit-validUntil").value = c.validUntil || "";
+                    document.getElementById("btn-delete-concept").style.display = "block";
+                }
+            } else {
+                // New
+                document.getElementById("edit-nombre").value = "";
+                document.getElementById("edit-inicio").value = "1";
+                document.getElementById("edit-fin").value = "";
+                document.getElementById("edit-finMes").checked = false;
+
+                // Set default "From" to current month
+                const now = new Date();
+                const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                document.getElementById("edit-validFrom").value = currentMonth;
+                document.getElementById("edit-validUntil").value = "";
+
+                document.getElementById("btn-delete-concept").style.display = "none";
+            }
+
+            modal.style.display = "flex";
+        }
+
+        function closeEditModal() {
+            document.getElementById("edit-modal").style.display = "none";
+        }
+
+        function saveConcept() {
+            const id = document.getElementById("edit-id").value;
+            const nombre = document.getElementById("edit-nombre").value.trim();
+            const inicio = parseInt(document.getElementById("edit-inicio").value);
+            const finStr = document.getElementById("edit-fin").value;
+            const fin = finStr ? parseInt(finStr) : null;
+            const finMes = document.getElementById("edit-finMes").checked;
+            const validFrom = document.getElementById("edit-validFrom").value;
+            const validUntil = document.getElementById("edit-validUntil").value || null;
+
+            if (!nombre || !inicio || !validFrom) {
+                alert("Nombre, Día de Inicio y Fecha de Validez son obligatorios.");
+                return;
+            }
+
+            let concepts = getConcepts();
+
+            const newConcept = {
+                id: id ? parseInt(id) : Date.now(),
+                nombre,
+                inicio,
+                fin: fin || (finMes ? null : inicio), // If no end day and not end-of-month, default to start day (1 day window)
+                finMes,
+                validFrom,
+                validUntil
+            };
+
+            if (id) {
+                const idx = concepts.findIndex(c => c.id == id);
+                if (idx !== -1) concepts[idx] = newConcept;
+            } else {
+                concepts.push(newConcept);
+            }
+
+            saveConcepts(concepts);
+            closeEditModal();
+            renderConceptsList();
+        }
+
+        function deleteConcept() {
+            const id = document.getElementById("edit-id").value;
+            if (!id) return;
+
+            if (!confirm("¿Eliminar este concepto? Se perderá el historial asociado si se borra.")) return;
+
+            let concepts = getConcepts();
+            concepts = concepts.filter(c => c.id != id);
+            saveConcepts(concepts);
+            closeEditModal();
+            renderConceptsList();
+        }
+
+        /* --- IMPORT / EXPORT DATA --- */
+        function exportData() {
+            const concepts = getConcepts();
+            const agenda = getAgenda();
+
+            // Get all payment status keys
+            const paymentHistory = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                // keys like '2024-5', '2024-11' etc.
+                if (key.match(/^\d{4}-\d{1,2}$/)) {
+                    paymentHistory[key] = JSON.parse(localStorage.getItem(key));
+                }
+            }
+
+            const data = {
+                concepts,
+                agenda,
+                paymentHistory,
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `backup_control_pagos_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (confirm("Al importar se reemplazarán los datos actuales. ¿Deseas continuar?")) {
+                        // Clear current data? Maybe selective overwrite is safer. 
+                        // Let's overwrite known keys.
+
+                        if (data.concepts) localStorage.setItem("concepts", JSON.stringify(data.concepts));
+                        if (data.agenda) localStorage.setItem("agenda", JSON.stringify(data.agenda));
+
+                        if (data.paymentHistory) {
+                            // Clear old payment history keys first?? No, let's just merge/overwrite.
+                            Object.keys(data.paymentHistory).forEach(key => {
+                                localStorage.setItem(key, JSON.stringify(data.paymentHistory[key]));
+                            });
+                        }
+
+                        alert("Datos importados correctamente.");
+                        location.reload(); // Reload to refresh everything
+                    }
+                } catch (err) {
+                    alert("Error al leer el archivo: " + err);
+                }
+            };
+            reader.readAsText(file);
+            // Reset input so same file can be selected again if needed
+            input.value = '';
         }
 
         /* --- AGENDA LOGIC --- */
@@ -789,6 +1128,19 @@
             const key = `${anio}-${mes}`;
             let data = JSON.parse(localStorage.getItem(key)) || {};
 
+            // Helper: Date string YYYY-MM
+            const currentMonthStr = `${anio}-${String(mes + 1).padStart(2, '0')}`;
+
+            // Filter Concepts
+            const concepts = getConcepts();
+            const activeConcepts = concepts.filter(c => {
+                // Logic: validFrom <= current <= validUntil
+                // Simple string comparison works for ISO YYYY-MM format
+                const afterStart = c.validFrom <= currentMonthStr;
+                const beforeEnd = !c.validUntil || c.validUntil >= currentMonthStr;
+                return afterStart && beforeEnd;
+            });
+
             // 1. Render Calendar Header
             ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach(d => {
                 calGrid.innerHTML += `<div class="header">${d}</div>`;
@@ -808,10 +1160,11 @@
                 let html = `<div class="day ${isToday ? "today" : ""}">
                     <strong>${d}</strong>`;
 
-                pagos.forEach((p, i) => {
-                    const aplica = p.finMes ? d >= p.inicio : (d >= p.inicio && d <= p.fin);
+                activeConcepts.forEach((p) => {
+                    const aplica = p.finMes ? d >= p.inicio : (d >= p.inicio && d <= (p.fin || p.inicio));
+                    // use concept ID for payment status tracking
                     if (aplica) {
-                        html += `<div class="gasto ${data[i] ? "pagado" : "pendiente"}">${p.nombre}</div>`;
+                        html += `<div class="gasto ${data[p.id] ? "pagado" : "pendiente"}">${p.nombre}</div>`;
                     }
                 });
                 html += `</div>`;
@@ -819,15 +1172,15 @@
             }
 
             // 3. Render Checklist
-            pagos.forEach((p, i) => {
+            activeConcepts.forEach((p) => {
                 const div = document.createElement("div");
                 div.className = "item";
                 div.innerHTML = `
             <span>${p.nombre}</span>
-            <input type="checkbox" ${data[i] ? "checked" : ""}>
+            <input type="checkbox" ${data[p.id] ? "checked" : ""}>
         `;
                 div.querySelector("input").onchange = e => {
-                    data[i] = e.target.checked;
+                    data[p.id] = e.target.checked;
                     localStorage.setItem(key, JSON.stringify(data));
 
                     // Sync Payment Update
