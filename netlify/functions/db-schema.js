@@ -1,14 +1,17 @@
 const { Client } = require('pg');
 
 exports.handler = async (event, context) => {
+  // FALLBACK CREDENTIALS (PROVIDED BY USER)
+  const DB_URL = "postgres://neondb_owner:npg_cVKjp5F9uPSX@ep-noisy-star-ajm5x9kk-pooler.c-3.us-east-2.aws.neon.tech/neondb?sslmode=require";
+
   const client = new Client({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL || DB_URL,
     ssl: { rejectUnauthorized: false }
   });
 
   try {
     await client.connect();
-    
+
     // Create Agenda Table
     await client.query(`
       CREATE TABLE IF NOT EXISTS agenda (

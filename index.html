@@ -847,17 +847,20 @@
         initTheme();
 
         /* --- CLOUD SYNC --- */
+        /* --- CLOUD SYNC --- */
         async function fetchCloudData() {
             try {
                 const res = await fetch('/.netlify/functions/get-data');
-                if (!res.ok) throw new Error("Network response was not ok");
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(`Server Error (${res.status}): ${errText}`);
+                }
                 const cloudData = await res.json();
 
                 if (cloudData.agenda) {
                     localStorage.setItem("agenda", JSON.stringify(cloudData.agenda));
                 }
                 if (cloudData.payments) {
-                    // Update local storage for payments
                     Object.keys(cloudData.payments).forEach(key => {
                         localStorage.setItem(key, JSON.stringify(cloudData.payments[key]));
                     });
@@ -865,8 +868,10 @@
                 console.log("Cloud sync successful");
                 cargar(); // Refresh UI
                 renderAgenda();
+                return true; // Success
             } catch (e) {
-                console.warn("Offline mode or sync failed:", e);
+                console.warn("Sync failed:", e);
+                return false; // Failed
             }
         }
 
@@ -888,13 +893,19 @@
             btn.textContent = "⌛";
             btn.disabled = true;
 
-            await fetchCloudData();
+            const success = await fetchCloudData();
 
-            btn.textContent = "✔";
+            if (success) {
+                btn.textContent = "✔";
+            } else {
+                btn.textContent = "❌ Error";
+                alert("Error de conexión con la base de datos.\n\nVerifica:\n1. Que hayas configurado DATABASE_URL en Netlify.\n2. Que hayas ejecutado la inicialización de la BD.");
+            }
+
             setTimeout(() => {
                 btn.textContent = originalText;
                 btn.disabled = false;
-            }, 2000);
+            }, 3000);
         }
 
         // Initial Load
