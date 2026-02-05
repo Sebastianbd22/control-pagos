@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#202c33">
     <title>Control de Pagos</title>
@@ -552,6 +553,7 @@
                     <input type="text" id="note-input" class="agenda-input" placeholder="Escribe una nota o cita..."
                         onkeypress="if(event.key==='Enter') addNote()">
                     <input type="date" id="note-date" class="agenda-date">
+                    <input type="time" id="note-time" class="agenda-date">
                     <button class="btn-add" onclick="addNote()">+</button>
                 </div>
                 <div class="agenda-container" id="agenda-list">
@@ -665,6 +667,7 @@
         const agendaList = document.getElementById("agenda-list");
         const noteInput = document.getElementById("note-input");
         const noteDate = document.getElementById("note-date");
+        const noteTime = document.getElementById("note-time");
 
         function getAgenda() {
             return JSON.parse(localStorage.getItem("agenda")) || [];
@@ -677,16 +680,20 @@
         function addNote() {
             const text = noteInput.value.trim();
             const date = noteDate.value;
+            const time = noteTime.value;
             if (!text) return;
 
             const notes = getAgenda();
-            notes.unshift({
+            const newNote = {
                 id: Date.now(),
                 text: text,
                 date: date || null,
+                time: time || null,
                 created: new Date().toLocaleDateString()
-            });
+            };
+            notes.unshift(newNote);
             saveAgenda(notes);
+            syncCloud('agenda_add', newNote); // Sync Add
             noteInput.value = "";
             renderAgenda();
         }
@@ -695,6 +702,7 @@
             if (!confirm("¿Borrar nota?")) return;
             const notes = getAgenda().filter(n => n.id !== id);
             saveAgenda(notes);
+            syncCloud('agenda_delete', { id }); // Sync Delete
             renderAgenda();
         }
 
@@ -710,11 +718,12 @@
             notes.forEach(n => {
                 // Sort visual formatting for date
                 const displayDate = n.date ? new Date(n.date).toLocaleDateString() : n.created;
+                const displayTime = n.time ? ` • ⏰ ${n.time}` : "";
 
                 agendaList.innerHTML += `
                     <div class="note-card">
                         <div class="note-header">
-                            <span>📅 ${displayDate}</span>
+                            <span>📅 ${displayDate}${displayTime}</span>
                             <button class="btn-delete-note" onclick="deleteNote(${n.id})">×</button>
                         </div>
                         <div class="note-body">${n.text}</div>
@@ -773,6 +782,10 @@
                 div.querySelector("input").onchange = e => {
                     data[i] = e.target.checked;
                     localStorage.setItem(key, JSON.stringify(data));
+
+                    // Sync Payment Update
+                    syncCloud('payment_update', { key, data });
+
                     cargar(); // Re-render to update calendar colors if needed
                 };
                 listaPagos.appendChild(div);
@@ -785,7 +798,48 @@
 
         // Boostrap
         initTheme();
+
+        /* --- CLOUD SYNC --- */
+        async function fetchCloudData() {
+            try {
+                const res = await fetch('/.netlify/functions/get-data');
+                if (!res.ok) throw new Error("Network response was not ok");
+                const cloudData = await res.json();
+
+                if (cloudData.agenda) {
+                    localStorage.setItem("agenda", JSON.stringify(cloudData.agenda));
+                }
+                if (cloudData.payments) {
+                    // Update local storage for payments
+                    Object.keys(cloudData.payments).forEach(key => {
+                        localStorage.setItem(key, JSON.stringify(cloudData.payments[key]));
+                    });
+                }
+                console.log("Cloud sync successful");
+                cargar(); // Refresh UI
+                renderAgenda();
+            } catch (e) {
+                console.warn("Offline mode or sync failed:", e);
+            }
+        }
+
+        async function syncCloud(type, data) {
+            try {
+                await fetch('/.netlify/functions/sync-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, data })
+                });
+            } catch (e) {
+                console.warn("Sync failed:", e);
+            }
+        }
+
+        // Initial Load
+        renderAgenda();
         cargar();
+        fetchCloudData(); // Try to get latest from cloud
+
     </script>
 
     <script>
