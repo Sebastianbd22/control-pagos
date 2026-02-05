@@ -1,0 +1,15 @@
+{
+  "name": "Control de Pagos",
+  "short_name": "Pagos",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f2f2f2",
+  "theme_color": "#ff9800",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/747/747310.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

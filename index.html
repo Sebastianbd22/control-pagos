@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff9800">
+<title>Control de Pagos</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 8px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+h2 {
+    text-align: center;
+    margin: 4px 0 8px;
+    font-size: 18px;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+select {
+    padding: 4px;
+    font-size: 12px;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 8px;
+    height: calc(100vh - 90px);
+}
+
+/* LISTA IZQUIERDA */
+.lista {
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+.lista h3 {
+    text-align: center;
+    margin: 4px 0 8px;
+    font-size: 14px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* CALENDARIO */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    height: 100%;
+}
+
+.header {
+    background: #ddd;
+    text-align: center;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 3px;
+}
+
+.day {
+    background: #fff;
+    border-radius: 6px;
+    padding: 3px;
+    font-size: 10px;
+    overflow: hidden;
+}
+
+.day strong {
+    font-size: 11px;
+}
+
+.today {
+    border: 2px solid #ff9800;
+}
+
+.gasto {
+    margin-top: 2px;
+    padding: 2px;
+    border-radius: 3px;
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pendiente { background: #bbdefb; }
+.pagado { background: #81c784; text-decoration: line-through; }
+
+/* IPHONE */
+@media (max-width: 800px) {
+    body { overflow: auto; }
+
+    .wrapper {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .calendar {
+        height: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h2>📅 Control de Pagos Mensuales</h2>
+
+<div class="controls">
+    <select id="mes"></select>
+    <select id="anio"></select>
+</div>
+
+<div class="wrapper">
+
+    <!-- IZQUIERDA -->
+    <div class="lista">
+        <h3>✅ Pagos del mes</h3>
+        <div id="listaPagos"></div>
+    </div>
+
+    <!-- DERECHA -->
+    <div class="calendar" id="calendar"></div>
+
+</div>
+
+<script>
+const pagos = [
+    { nombre: "BBVA Tarjeta Crédito", inicio: 1, fin: 15 },
+    { nombre: "RappiCard", inicio: 1, fin: 9 },
+    { nombre: "Seguro Vehicular", inicio: 10, fin: 15 },
+    { nombre: "Ahorro Viajes", inicio: 15, finMes: true },
+    { nombre: "Préstamo Maylin", inicio: 10, fin: 15 },
+    { nombre: "Préstamo BBVA", inicio: 1, fin: 10 },
+    { nombre: "Agua", inicio: 20, finMes: true },
+    { nombre: "Luz", inicio: 20, fin: 26 },
+    { nombre: "Gas", inicio: 1, fin: 15 },
+    { nombre: "Claro Hogar", inicio: 3, fin: 18 },
+    { nombre: "Administración", inicio: 1, fin: 5 },
+    { nombre: "Claro Móvil", inicio: 3, fin: 15 }
+];
+
+const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio",
+               "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+const mesSel = document.getElementById("mes");
+const anioSel = document.getElementById("anio");
+const cal = document.getElementById("calendar");
+const listaPagos = document.getElementById("listaPagos");
+
+for (let i=0;i<12;i++) mesSel.innerHTML += `<option value="${i}">${meses[i]}</option>`;
+for (let y=2024;y<=2035;y++) anioSel.innerHTML += `<option value="${y}">${y}</option>`;
+
+const hoy = new Date();
+mesSel.value = hoy.getMonth();
+anioSel.value = hoy.getFullYear();
+
+function cargar() {
+    cal.innerHTML = "";
+    listaPagos.innerHTML = "";
+
+    const mes = +mesSel.value;
+    const anio = +anioSel.value;
+    const key = `${anio}-${mes}`;
+    let data = JSON.parse(localStorage.getItem(key)) || {};
+
+    ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"].forEach(d=>{
+        cal.innerHTML += `<div class="header">${d}</div>`;
+    });
+
+    const primerDia = new Date(anio,mes,1).getDay();
+    const totalDias = new Date(anio,mes+1,0).getDate();
+    for(let i=0;i<primerDia;i++) cal.innerHTML += `<div></div>`;
+
+    for(let d=1; d<=totalDias; d++){
+        let html = `<div class="day ${d===hoy.getDate() && mes===hoy.getMonth() && anio===hoy.getFullYear() ? "today":""}">
+                    <strong>${d}</strong>`;
+        pagos.forEach((p,i)=>{
+            const aplica = p.finMes ? d>=p.inicio : (d>=p.inicio && d<=p.fin);
+            if(aplica){
+                html += `<div class="gasto ${data[i]?"pagado":"pendiente"}">${p.nombre}</div>`;
+            }
+        });
+        html += `</div>`;
+        cal.innerHTML += html;
+    }
+
+    pagos.forEach((p,i)=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+            <span>${p.nombre}</span>
+            <input type="checkbox" ${data[i]?"checked":""}>
+        `;
+        div.querySelector("input").onchange = e=>{
+            data[i] = e.target.checked;
+            localStorage.setItem(key, JSON.stringify(data));
+            cargar();
+        };
+        listaPagos.appendChild(div);
+    });
+}
+
+mesSel.onchange = cargar;
+anioSel.onchange = cargar;
+cargar();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+</body>
+</html>
