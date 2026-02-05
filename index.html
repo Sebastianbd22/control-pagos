@@ -353,17 +353,14 @@
             .sidebar {
                 width: 100%;
                 height: auto;
-                /* Allow auto height for padding */
                 min-height: 60px;
                 flex-direction: row;
                 justify-content: space-around;
                 padding-top: 5px;
                 padding-bottom: calc(5px + env(safe-area-inset-bottom));
-                /* iOS Safe Area */
                 border-right: none;
                 border-top: 1px solid var(--border-color);
                 background: var(--bg-sidebar);
-                /* Ensure background covers safe area */
                 flex-shrink: 0;
                 z-index: 1000;
             }
@@ -371,28 +368,74 @@
             .nav-btn {
                 margin-bottom: 0;
                 width: 50px;
-                /* Larger touch area on mobile */
                 height: 50px;
             }
 
             .nav-btn svg {
                 width: 32px;
-                /* Larger icons on mobile */
                 height: 32px;
             }
 
+            /* CALENDAR FIX */
             .calendar {
                 gap: 1px;
+                width: 100%;
+                /* Ensure it fits container */
             }
 
             .day {
                 min-height: 50px;
                 font-size: 10px;
+                padding: 2px;
+                /* Reduce padding */
+                overflow: hidden;
+                /* Prevent spillover */
+                min-width: 0;
+                /* Allow grid items to shrink below content size */
             }
 
             .gasto {
-                font-size: 9px;
-                padding: 1px 3px;
+                font-size: 8px;
+                /* Smaller font */
+                padding: 1px 2px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+                /* Ensure text truncates */
+            }
+
+            /* AGENDA FIX */
+            .agenda-container {
+                width: 100%;
+                /* Fit width */
+                padding: 0 10px 80px 10px;
+                /* Add side padding, keep bottom space */
+                box-sizing: border-box;
+                /* Include padding in width */
+            }
+
+            .agenda-input-area {
+                flex-wrap: wrap;
+                /* Allow inputs to wrap if needed */
+                gap: 5px;
+                padding: 10px;
+            }
+
+            .agenda-input {
+                width: 100%;
+                /* Full width input */
+                margin-bottom: 5px;
+            }
+
+            .agenda-date {
+                flex: 1;
+                /* Share space */
+            }
+
+            .btn-add {
+                margin-left: auto;
+                /* Push to right */
             }
         }
 
@@ -568,6 +611,10 @@
                     <div class="setting-item">
                         <span>Modo Oscuro</span>
                         <button class="btn-toggle" id="theme-toggle" onclick="toggleTheme()">Activar</button>
+                    </div>
+                    <div class="setting-item">
+                        <span>Sincronizar Datos</span>
+                        <button class="btn-toggle" id="btn-sync" onclick="manualSync()">Actualizar</button>
                     </div>
                 </div>
             </div>
@@ -833,6 +880,21 @@
             } catch (e) {
                 console.warn("Sync failed:", e);
             }
+        }
+
+        async function manualSync() {
+            const btn = document.getElementById('btn-sync');
+            const originalText = btn.textContent;
+            btn.textContent = "⌛";
+            btn.disabled = true;
+
+            await fetchCloudData();
+
+            btn.textContent = "✔";
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }, 2000);
         }
 
         // Initial Load
