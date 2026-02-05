@@ -59,6 +59,8 @@
             color: var(--text-primary);
             margin: 0;
             height: 100vh;
+            height: 100dvh;
+            /* Fix for mobile address bars */
             display: flex;
             overflow: hidden;
             transition: background 0.3s, color 0.3s;
@@ -361,6 +363,8 @@
                 border-top: 1px solid var(--border-color);
                 background: var(--bg-sidebar);
                 /* Ensure background covers safe area */
+                flex-shrink: 0;
+                z-index: 1000;
             }
 
             .nav-btn {
