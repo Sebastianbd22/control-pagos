@@ -844,8 +844,16 @@
 
             <!-- VIEW: CHECKLIST -->
             <div id="checklist" class="view-section">
+                <!-- Payments Section -->
+                <h3 class="checklist-header" data-i18n="pending_payments">Pagos Pendientes</h3>
                 <div class="checklist-container" id="listaPagos">
                     <!-- Items injected by JS -->
+                </div>
+
+                <!-- Tasks/Agenda Section -->
+                <h3 class="checklist-header" style="margin-top:30px;" data-i18n="todo_list">Por Hacer / Citas</h3>
+                <div class="checklist-container" id="listaTareas">
+                    <!-- Tasks injected by JS -->
                 </div>
             </div>
 
@@ -888,14 +896,19 @@
             <!-- VIEW: SETTINGS -->
             <div id="settings" class="view-section">
                 <div class="settings-container">
-                    <h3>Configuración</h3>
+                    <h3 data-i18n="settings">Configuración</h3>
+
                     <div class="setting-item">
-                        <span>Modo Oscuro</span>
-                        <button class="btn-toggle" id="theme-toggle" onclick="toggleTheme()">Activar</button>
+                        <span data-i18n="language">Idioma</span>
+                        <select id="lang-select" onchange="changeLanguage(this.value)" style="width: auto;">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                        </select>
                     </div>
+
                     <div class="setting-item">
-                        <span>Sincronizar Datos</span>
-                        <button class="btn-toggle" id="btn-sync" onclick="manualSync()">Actualizar</button>
+                        <span data-i18n="dark_mode">Modo Oscuro</span>
+                        <button class="btn-toggle" id="theme-toggle" onclick="toggleTheme()">Activar</button>
                     </div>
                 </div>
 
@@ -1038,19 +1051,106 @@
         const pageTitle = document.getElementById("page-title");
         const dateControls = document.getElementById("date-controls");
 
-        /* --- INITIALIZATION --- */
+        /* --- INITIALIZATION & TRANSLATIONS --- */
         for (let i = 0; i < 12; i++) mesSel.innerHTML += `<option value="${i}">${meses[i]}</option>`;
 
-        // YEAR LOGIC: Default start 2026, but detect if user has older data
+        /* --- TRANSLATIONS --- */
+        const translations = {
+            es: {
+                home: "Inicio",
+                checklist: "Pagos",
+                calendar: "Calendario",
+                agenda: "Agenda",
+                settings: "Configuración",
+                pending_payments: "Pagos Pendientes",
+                todo_list: "Por Hacer / Citas",
+                language: "Idioma",
+                dark_mode: "Modo Oscuro",
+                overdue_title: "⚠️ Pagos Vencidos",
+                upcoming_7_days: "📅 Próximos 7 Días",
+                monthly_summary: "📊 Resumen Mensual",
+                paid: "Pagado",
+                completed: "Completado",
+                days_late: "días de retraso",
+                vencido_hace: "Vencido hace",
+                pending_count: "Pendiente",
+                no_upcoming: "No hay eventos próximos",
+                all_up_to_date: "¡Todo al día!",
+                delete_note_confirm: "¿Borrar nota?",
+                delete_concept_confirm: "¿Eliminar este concepto? Se perderá el historial asociado."
+            },
+            en: {
+                home: "Home",
+                checklist: "Checklist",
+                calendar: "Calendar",
+                agenda: "Agenda",
+                settings: "Settings",
+                pending_payments: "Pending Payments",
+                todo_list: "To-Do / Appointments",
+                language: "Language",
+                dark_mode: "Dark Mode",
+                overdue_title: "⚠️ Overdue Payments",
+                upcoming_7_days: "📅 Next 7 Days",
+                monthly_summary: "📊 Monthly Summary",
+                paid: "Paid",
+                completed: "Completed",
+                days_late: "days late",
+                vencido_hace: "Overdue by",
+                pending_count: "Pending",
+                no_upcoming: "No upcoming events",
+                all_up_to_date: "All caught up!",
+                delete_note_confirm: "Delete note?",
+                delete_concept_confirm: "Delete this concept? Associated history will be lost."
+            }
+        };
+
+        function getLang() { return localStorage.getItem('lang') || 'es'; }
+        function t(key) { return translations[getLang()][key] || key; }
+
+        function changeLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            updateTexts();
+            const view = document.querySelector('.view-section.active');
+            if (view) switchView(view.id);
+        }
+
+        function updateTexts() {
+            const lang = getLang();
+            const sel = document.getElementById('lang-select');
+            if (sel) sel.value = lang;
+
+            const navBtns = document.querySelectorAll('.nav-btn label');
+            if (navBtns.length >= 5) {
+                navBtns[0].textContent = t('home');
+                navBtns[1].textContent = t('checklist');
+                navBtns[2].textContent = t('calendar');
+                navBtns[3].textContent = t('agenda');
+                navBtns[4].textContent = t('settings');
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = t(key);
+            });
+
+            // Dynamic headers
+            const overdueTitle = document.querySelector('#section-overdue h3');
+            if (overdueTitle) overdueTitle.textContent = t('overdue_title');
+            const sections = document.querySelectorAll('.dashboard-section h3');
+            sections.forEach(h3 => {
+                if (h3.textContent.includes('Días')) h3.textContent = t('upcoming_7_days');
+                if (h3.textContent.includes('Resumen')) h3.textContent = t('monthly_summary');
+            });
+        }
+
+        // YEAR LOGIC
         function detectActiveYears() {
             let minYear = 2026;
-            // Scan localStorage keys for patterns like "YYYY-MM"
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                const match = key.match(/^(\d{4})-\d{1,2}$/);
-                if (match) {
-                    const year = parseInt(match[1]);
-                    if (year < minYear) minYear = year;
+                if (key.match(/^(\d{4})-\d{1,2}$/)) {
+                    const y = parseInt(key.split('-')[0]);
+                    if (y < minYear) minYear = y;
                 }
             }
             return minYear;
@@ -1058,6 +1158,9 @@
 
         const startYear = detectActiveYears();
         for (let y = startYear; y <= 2035; y++) anioSel.innerHTML += `<option value="${y}">${y}</option>`;
+
+
+
 
         const hoy = new Date();
         mesSel.value = hoy.getMonth();
@@ -1106,28 +1209,29 @@
             const filterControls = document.getElementById('filter-controls');
 
             // Update Title & Controls visibility
+            // Update Title & Controls visibility
             if (viewName === 'dashboard') {
-                pageTitle.textContent = "Dashboard";
+                pageTitle.textContent = t('home');
                 dateControls.style.display = 'none';
                 filterControls.style.display = 'none';
                 renderDashboard();
             } else if (viewName === 'checklist') {
-                pageTitle.textContent = "Lista de Pagos";
+                pageTitle.textContent = t('checklist');
                 dateControls.style.display = 'flex';
                 filterControls.style.display = 'flex';
-                cargar(); // Refresh list just in case
+                cargar();
             } else if (viewName === 'calendar') {
-                pageTitle.textContent = "Calendario Mensual";
+                pageTitle.textContent = t('calendar');
                 dateControls.style.display = 'flex';
                 filterControls.style.display = 'flex';
-                cargar(); // Refresh calendar just in case
+                cargar();
             } else if (viewName === 'agenda') {
-                pageTitle.textContent = "Mi Agenda";
+                pageTitle.textContent = t('agenda');
                 dateControls.style.display = 'none';
                 filterControls.style.display = 'none';
                 renderAgenda();
             } else {
-                pageTitle.textContent = "Configuración";
+                pageTitle.textContent = t('settings');
                 dateControls.style.display = 'none';
                 filterControls.style.display = 'none';
             }
@@ -1164,16 +1268,13 @@
                     }
                 });
 
-                if (changed) {
-                    saveConcepts(concepts);
-                }
+                if (changed) saveConcepts(concepts);
             }
             return concepts;
         }
 
         function saveConcepts(concepts) {
             localStorage.setItem("concepts", JSON.stringify(concepts));
-            syncCloud('concepts_update', concepts);
             populateConceptFilter();
         }
 
@@ -1417,30 +1518,26 @@
             const notes = getAgenda();
 
             if (id) {
-                // Update existing
                 const index = notes.findIndex(n => n.id == id);
                 if (index !== -1) {
                     notes[index] = { ...notes[index], text, desc, date, time };
-                    syncCloud('agenda_update', notes[index]);
                 }
             } else {
-                // Create new
                 const newNote = {
                     id: Date.now(),
-                    text,
-                    desc,
+                    text, desc,
                     date: date || null,
                     time: time || null,
+                    completed: false,
                     created: new Date().toLocaleDateString()
                 };
                 notes.unshift(newNote);
-                syncCloud('agenda_add', newNote);
             }
 
             saveAgenda(notes);
             resetNoteInput();
             renderAgenda();
-            cargar(); // Update calendar markers
+            cargar();
         }
 
         function editNote(id) {
@@ -1454,11 +1551,9 @@
             noteDate.value = note.date || "";
             noteTime.value = note.time || "";
 
-            btnSaveNote.textContent = "Actualizar";
+            btnSaveNote.textContent = t('update') || "Actualizar";
             btnCancelEdit.style.display = "block";
             noteInput.focus();
-
-            // Scroll to top
             document.querySelector('.view-section.active').scrollTop = 0;
         }
 
@@ -1468,213 +1563,15 @@
             noteDesc.value = "";
             noteDate.value = "";
             noteTime.value = "";
-
             btnSaveNote.textContent = "Guardar";
             btnCancelEdit.style.display = "none";
         }
 
-        /* --- DASHBOARD RENDERING --- */
-        function renderDashboard() {
-            const overdueList = document.getElementById('overdue-list');
-            const upcomingList = document.getElementById('upcoming-list');
-            const sectionOverdue = document.getElementById('section-overdue');
-
-            // Summary Elements
-            const elTotalPending = document.getElementById('db-total-pending');
-            const elTotalPaid = document.getElementById('db-total-paid');
-            const elProgressBar = document.getElementById('db-progress-bar');
-            const elProgressText = document.getElementById('db-progress-text');
-
-            overdueList.innerHTML = '';
-            upcomingList.innerHTML = '';
-
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth(); // 0-11
-            const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-
-            const overdue = [];
-            const upcoming = [];
-
-            // Summary Stats
-            let totalPending = 0;
-            let totalPaid = 0;
-            let countPending = 0;
-            let countPaid = 0;
-
-            const concepts = getConcepts();
-
-            /* 1. CALCULATE CURRENT MONTH SUMMARY */
-            const currentKey = `${currentYear}-${currentMonth}`;
-            const currentData = JSON.parse(localStorage.getItem(currentKey)) || {};
-
-            concepts.forEach(c => {
-                // Check validity for THIS month
-                if (c.validFrom <= currentMonthStr && (!c.validUntil || c.validUntil >= currentMonthStr)) {
-                    const isPaid = currentData[c.id] === true;
-                    // We don't have amounts in the object, so we count ITEMS. 
-                    // If user wants amounts, we'd need to add 'monto' to concepts. For now, we assume simple count or placeholder value?
-                    // Request says "Total del mes", implies money. But we don't have money fields.
-                    // Let's count items for now, or assume an arbitrary value if we can't add fields.
-                    // Actually, let's just show Count of items for now or "Pending Items".
-                    // Wait, user asked for "dashboard se vea mucho mejor". 
-                    // Let's count Items.
-                    if (isPaid) countPaid++; else countPending++;
-                }
-            });
-
-            const totalItems = countPaid + countPending;
-            const percentage = totalItems === 0 ? 0 : Math.round((countPaid / totalItems) * 100);
-
-            elTotalPending.textContent = countPending; // Showing Count
-            elTotalPaid.textContent = countPaid;       // Showing Count
-            elProgressBar.style.width = `${percentage}%`;
-            elProgressText.textContent = `${percentage}% Completado (${countPaid}/${totalItems})`;
-
-
-            /* 2. SCAN FOR OVERDUE (Respecting startYear) */
-            // Get the detected start year again to avoid scanning too far back if unwanted
-            let scanStartYear = detectActiveYears();
-            if (scanStartYear < 2026 && !localStorage.getItem(`${scanStartYear}-0`)) {
-                // If detection found 2025 data, we scan from there.
-                // If logic requires "starting from 2026 unless data exists", detectActiveYears handles it.
-            }
-
-            for (let year = scanStartYear; year <= currentYear; year++) {
-                const endMonth = (year === currentYear) ? currentMonth : 11;
-                for (let month = 0; month <= endMonth; month++) {
-                    // Skip future months in current year (already handled by loop condition but be safe)
-                    if (year === currentYear && month > currentMonth) continue;
-
-                    const key = `${year}-${month}`;
-                    let data = JSON.parse(localStorage.getItem(key)) || {};
-                    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
-
-                    concepts.forEach(concept => {
-                        // Check if concept was active in that historic month
-                        if (concept.validFrom <= monthStr && (!concept.validUntil || concept.validUntil >= monthStr)) {
-                            const diaNum = +concept.inicio;
-                            const isPaid = data[concept.id] === true;
-                            // Safe date creation
-                            const itemDate = new Date(year, month, diaNum);
-
-                            // Check if overdue: Not paid AND date is in past
-                            // We use setHours to be precise
-                            const todayStart = new Date();
-                            todayStart.setHours(0, 0, 0, 0);
-
-                            if (!isPaid && itemDate < todayStart) {
-                                overdue.push({
-                                    nombre: concept.nombre,
-                                    date: itemDate,
-                                    monthYear: `${month + 1}/${year}`,
-                                    diaNum
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-
-            // Scan upcoming 7 days
-            const sevenDaysFromNow = new Date(now);
-            sevenDaysFromNow.setDate(now.getDate() + 7);
-
-            concepts.forEach(concept => {
-                // Check if active NOW
-                if (concept.validFrom <= currentMonthStr && (!concept.validUntil || concept.validUntil >= currentMonthStr)) {
-                    const diaNum = +concept.inicio;
-                    const key = `${currentYear}-${currentMonth}`;
-                    let data = JSON.parse(localStorage.getItem(key)) || {};
-                    const isPaid = data[concept.id] === true;
-                    const itemDate = new Date(currentYear, currentMonth, diaNum);
-
-                    if (!isPaid && itemDate >= now && itemDate <= sevenDaysFromNow) {
-                        upcoming.push({
-                            type: 'payment',
-                            nombre: concept.nombre,
-                            date: itemDate,
-                            diaNum
-                        });
-                    }
-                }
-            });
-
-            // Check agenda
-            const notes = getAgenda();
-            notes.forEach(note => {
-                if (!note.date) return;
-                const [y, m, d] = note.date.split('-').map(Number);
-                const noteDate = new Date(y, m - 1, d);
-                if (noteDate >= now && noteDate <= sevenDaysFromNow) {
-                    upcoming.push({
-                        type: 'agenda',
-                        nombre: note.text,
-                        date: noteDate,
-                        time: note.time || '',
-                        desc: note.desc || ''
-                    });
-                }
-            });
-
-            // Sort
-            overdue.sort((a, b) => a.date - b.date);
-            upcoming.sort((a, b) => a.date - b.date);
-
-            // Render Overdue
-            if (overdue.length === 0) {
-                sectionOverdue.style.display = 'none'; // Hide if empty
-            } else {
-                sectionOverdue.style.display = 'block';
-                overdue.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'dashboard-card overdue';
-                    card.innerHTML = `
-                        <div class="card-title">${item.nombre}</div>
-                        <div class="card-meta">
-                            <span>📅 Día ${item.diaNum}</span>
-                            <span>📆 ${item.monthYear}</span>
-                        </div>
-                    `;
-                    overdueList.appendChild(card);
-                });
-            }
-
-            // Render Upcoming
-            if (upcoming.length === 0) {
-                upcomingList.innerHTML = `
-                    <div class="empty-state">
-                        <p>No hay eventos próximos</p>
-                    </div>
-                `;
-            } else {
-                upcoming.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = (item.type === 'payment') ? 'dashboard-card upcoming' : 'dashboard-card';
-                    // Agenda items usually blue, payments green/accent
-
-                    const dateStr = item.date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
-                    card.innerHTML = `
-                        <div class="card-title">${item.type === 'payment' ? '💳' : '📅'} ${item.nombre}</div>
-                        <div class="card-meta">
-                            <span>${dateStr}</span>
-                            ${item.time ? `<span>🕐 ${item.time}</span>` : ''}
-                        </div>
-                    `;
-                    upcomingList.appendChild(card);
-                });
-            }
-        }
-
         function deleteNote(id) {
-            if (!confirm("¿Borrar nota?")) return;
+            if (!confirm(t('delete_note_confirm') || "¿Borrar nota?")) return;
             const notes = getAgenda().filter(n => n.id !== id);
             saveAgenda(notes);
-            syncCloud('agenda_delete', { id }); // Sync Delete
-
-            // If we deleted the one being edited, reset form
             if (noteIdInput.value == id) resetNoteInput();
-
             renderAgenda();
             cargar();
         }
@@ -1684,16 +1581,13 @@
             agendaList.innerHTML = "";
 
             if (notes.length === 0) {
-                agendaList.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-secondary)">No tienes notas.</div>`;
+                agendaList.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-secondary)">${t('pending_count') || 'Pendiente'}... 0</div>`;
                 return;
             }
 
             notes.forEach(n => {
-                // Sort visual formatting for date
                 const displayDate = n.date ? new Date(n.date).toLocaleDateString() : n.created;
                 const displayTime = n.time ? ` • ⏰ ${n.time}` : "";
-
-                // Description with newlines
                 const descHtml = n.desc ? `<div style="margin-top:5px; font-size:13px; color:var(--text-secondary); white-space:pre-wrap;">${n.desc}</div>` : '';
 
                 agendaList.innerHTML += `
@@ -1711,6 +1605,146 @@
                 `;
             });
         }
+
+        /* --- DASHBOARD RENDERING --- */
+        /* --- DASHBOARD RENDERING --- */
+        function renderDashboard() {
+            const overdueList = document.getElementById('overdue-list');
+            const upcomingList = document.getElementById('upcoming-list');
+            const sectionOverdue = document.getElementById('section-overdue');
+
+            const elTotalPending = document.getElementById('db-total-pending');
+            const elTotalPaid = document.getElementById('db-total-paid');
+            const elProgressBar = document.getElementById('db-progress-bar');
+            const elProgressText = document.getElementById('db-progress-text');
+
+            overdueList.innerHTML = '';
+            upcomingList.innerHTML = '';
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
+            let countPending = 0;
+            let countPaid = 0;
+            const concepts = getConcepts();
+            const currentKey = `${currentYear}-${currentMonth}`;
+            const currentData = JSON.parse(localStorage.getItem(currentKey)) || {};
+
+            // 1. Summary Stats
+            concepts.forEach(c => {
+                if (c.validFrom <= currentMonthStr && (!c.validUntil || c.validUntil >= currentMonthStr)) {
+                    const isPaid = currentData[c.id] === true;
+                    if (isPaid) countPaid++; else countPending++;
+                }
+            });
+            const totalItems = countPaid + countPending;
+            const percentage = totalItems === 0 ? 0 : Math.round((countPaid / totalItems) * 100);
+
+            elTotalPending.textContent = countPending;
+            elTotalPaid.textContent = countPaid;
+            elProgressBar.style.width = `${percentage}%`;
+            elProgressText.textContent = `${percentage}% ${t('completed')} (${countPaid}/${totalItems})`;
+
+            // 2. Overdue Logic (Grouped)
+            let scanStartYear = detectActiveYears();
+            const rawOverdue = [];
+            for (let year = scanStartYear; year <= currentYear; year++) {
+                const endMonth = (year === currentYear) ? currentMonth : 11;
+                for (let month = 0; month <= endMonth; month++) {
+                    if (year === currentYear && month >= currentMonth) continue;
+                    const key = `${year}-${month}`;
+                    let data = JSON.parse(localStorage.getItem(key)) || {};
+                    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+                    concepts.forEach(concept => {
+                        if (concept.validFrom <= monthStr && (!concept.validUntil || concept.validUntil >= monthStr)) {
+                            const isPaid = data[concept.id] === true;
+                            if (!isPaid) {
+                                rawOverdue.push({
+                                    name: concept.nombre,
+                                    dueDate: new Date(year, month, +concept.inicio),
+                                    month: month + 1, year
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Grouping
+            const grouped = {};
+            rawOverdue.forEach(o => {
+                if (!grouped[o.name]) grouped[o.name] = { ...o, count: 0 };
+                // Keep oldest date
+                if (o.dueDate < grouped[o.name].dueDate) grouped[o.name].dueDate = o.dueDate;
+                grouped[o.name].count++;
+            });
+
+            const overdueKeys = Object.keys(grouped);
+            if (overdueKeys.length === 0) {
+                sectionOverdue.style.display = 'none';
+            } else {
+                sectionOverdue.style.display = 'block';
+                overdueKeys.forEach(k => {
+                    const item = grouped[k];
+                    const diffDays = Math.ceil(Math.abs(now - item.dueDate) / (1000 * 60 * 60 * 24));
+                    const card = document.createElement('div');
+                    card.className = 'dashboard-card overdue';
+                    card.innerHTML = `
+                        <div class="card-title">${item.name}</div>
+                        <div class="card-meta">
+                            <span style="color:var(--status-overdue-text); font-weight:bold;">⚠️ ${diffDays} ${t('days_late')}</span>
+                            <span>${t('vencido_hace')} ${item.dueDate.toLocaleDateString()}</span>
+                        </div>`;
+                    overdueList.appendChild(card);
+                });
+            }
+
+            // 3. Upcoming
+            const upcoming = [];
+            const sevenDays = new Date(now);
+            sevenDays.setDate(now.getDate() + 7);
+
+            concepts.forEach(c => { // Payments
+                if (c.validFrom <= currentMonthStr && (!c.validUntil || c.validUntil >= currentMonthStr)) {
+                    const id = c.id;
+                    const isPaid = currentData[id] === true;
+                    const itemDate = new Date(currentYear, currentMonth, +c.inicio);
+                    if (!isPaid && itemDate >= now && itemDate <= sevenDays) {
+                        upcoming.push({ type: 'payment', name: c.nombre, date: itemDate });
+                    }
+                }
+            });
+            getAgenda().forEach(n => { // Agenda
+                if (!n.date) return;
+                const [y, m, d] = n.date.split('-').map(Number);
+                const nDate = new Date(y, m - 1, d);
+                if (nDate >= now && nDate <= sevenDays) {
+                    upcoming.push({ type: 'agenda', name: n.text, date: nDate, time: n.time });
+                }
+            });
+            upcoming.sort((a, b) => a.date - b.date);
+
+            if (upcoming.length === 0) {
+                upcomingList.innerHTML = `<div class="empty-state"><p>${t('no_upcoming')}</p></div>`;
+            } else {
+                upcoming.forEach(u => {
+                    const card = document.createElement('div');
+                    card.className = u.type === 'payment' ? 'dashboard-card upcoming' : 'dashboard-card';
+                    card.innerHTML = `
+                        <div class="card-title">${u.type === 'payment' ? '💳' : '📅'} ${u.name}</div>
+                        <div class="card-meta">
+                            <span>${u.date.toLocaleDateString()}</span>
+                            ${u.time ? `<span>🕐 ${u.time}</span>` : ''}
+                        </div>`;
+                    upcomingList.appendChild(card);
+                });
+            }
+        }
+
+
 
         /* --- CONCEPTS FILTER LOGIC --- */
         function populateConceptFilter() {
@@ -1736,173 +1770,179 @@
 
         /* --- CORE LOGIC (Render) --- */
         function cargar() {
+            const calGrid = document.getElementById("calendar-grid");
+            const listaPagos = document.getElementById("lista-pagos");
+            const listaCitas = document.getElementById("lista-citas");
+
             calGrid.innerHTML = "";
-            listaPagos.innerHTML = "";
+            if (listaPagos) listaPagos.innerHTML = "";
+            if (listaCitas) listaCitas.innerHTML = "";
 
             const mes = +mesSel.value;
             const anio = +anioSel.value;
             const key = `${anio}-${mes}`;
-            let data = JSON.parse(localStorage.getItem(key)) || {};
+            const data = JSON.parse(localStorage.getItem(key)) || {};
+            const currentMonthStr = `${anio}-${String(mes + 1).padStart(2, '0')}`;
 
-            const filterType = document.getElementById("filter-type").value; // all, pagos, citas, completado, pendiente
+            // Filters
+            const filterType = document.getElementById("filter-type").value;
             const filterConceptEl = document.getElementById("filter-concept");
             const filterConceptId = filterConceptEl ? filterConceptEl.value : 'all';
 
-            // Helper: Date string YYYY-MM
-            const currentMonthStr = `${anio}-${String(mes + 1).padStart(2, '0')}`;
+            const items = [];
 
-            // 1. Prepare Data
-            let itemsToRender = [];
-
-            // A) PAGOS
+            // 1. Gather Payments
             if (filterType !== 'citas') {
                 const concepts = getConcepts();
-                const activeConcepts = concepts.filter(c => {
-                    // ID Filter
-                    if (filterConceptId !== 'all' && c.id != filterConceptId) return false;
+                concepts.forEach(c => {
+                    // Concept Filter
+                    if (filterConceptId !== 'all' && c.id != filterConceptId) return;
+                    // Validity Filter
+                    if (c.validFrom > currentMonthStr || (c.validUntil && c.validUntil < currentMonthStr)) return;
 
-                    const afterStart = c.validFrom <= currentMonthStr;
-                    const beforeEnd = !c.validUntil || c.validUntil >= currentMonthStr;
-                    return afterStart && beforeEnd;
-                });
-
-                activeConcepts.forEach(p => {
-                    const isPaid = !!data[p.id];
-                    // Status Filter
+                    const isPaid = !!data[c.id];
                     if (filterType === 'completado' && !isPaid) return;
                     if (filterType === 'pendiente' && isPaid) return;
 
-                    itemsToRender.push({
+                    items.push({
                         type: 'payment',
-                        id: p.id,
-                        nombre: p.nombre,
-                        start: p.inicio,
-                        end: p.fin || p.inicio,
-                        finMes: p.finMes,
+                        id: c.id,
+                        name: c.nombre,
+                        start: +c.inicio,
+                        end: c.fin || +c.inicio,
+                        finMes: c.finMes,
                         paid: isPaid,
-                        data: p
+                        data: c
                     });
                 });
             }
 
-            // B) AGENDA (CITAS)
-            // Only show agenda if we are NOT filtering by a specific concept (Agenda has no concept)
+            // 2. Gather Agenda
             if (filterType !== 'pagos' && filterConceptId === 'all') {
-                const notes = getAgenda(); // [{id, text, date, time...}]
+                const notes = getAgenda();
                 notes.forEach(n => {
                     if (!n.date) return;
                     const nDate = new Date(n.date + "T00:00:00");
                     if (nDate.getMonth() !== mes || nDate.getFullYear() !== anio) return;
 
-                    const day = nDate.getDate();
-                    // Determine "status" for agenda (Past = Completed, Future/Today = Pending)
-                    const todayStr = new Date().toISOString().slice(0, 10);
-                    const isPast = n.date < todayStr;
+                    const isPast = n.completed === true || (new Date() > new Date(n.date + "T23:59:59"));
 
+                    // Filter
                     if (filterType === 'completado' && !isPast) return;
                     if (filterType === 'pendiente' && isPast) return;
 
-                    itemsToRender.push({
+                    items.push({
                         type: 'agenda',
                         id: n.id,
-                        nombre: n.text,
-                        start: day,
-                        end: day,
-                        finMes: false,
-                        paid: isPast, // repurpose 'paid' as 'completed/past'
-                        data: n,
-                        time: n.time
+                        name: n.text,
+                        start: nDate.getDate(),
+                        end: nDate.getDate(),
+                        paid: isPast, // Uses 'paid' prop for convenience
+                        time: n.time,
+                        data: n
                     });
                 });
             }
 
-            // 2. Render Calendar Header
+            // 3. Render Calendar
+            // Header
             ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach(d => {
                 calGrid.innerHTML += `<div class="header">${d}</div>`;
             });
 
-            // 3. Render Calendar Days
-            const primerDia = new Date(anio, mes, 1).getDay();
-            const totalDias = new Date(anio, mes + 1, 0).getDate();
+            // Days
+            const firstDay = new Date(anio, mes, 1).getDay();
+            const daysInMonth = new Date(anio, mes + 1, 0).getDate();
+            const now = new Date();
 
-            for (let i = 0; i < primerDia; i++) calGrid.innerHTML += `<div class="day empty"></div>`;
+            // Empty slots
+            for (let i = 0; i < firstDay; i++) calGrid.innerHTML += `<div class="day empty"></div>`;
 
-            for (let d = 1; d <= totalDias; d++) {
-                let isToday = (d === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear());
-                let html = `<div class="day ${isToday ? "today" : ""}"><strong>${d}</strong>`;
+            // Filled slots
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isToday = (d === now.getDate() && mes === now.getMonth() && anio === now.getFullYear());
+                let cellHtml = `<div class="day ${isToday ? 'today' : ''}"><strong style="font-size:12px;display:block;margin-bottom:2px;">${d}</strong>`;
 
-                // Find items for this day
-                itemsToRender.forEach(item => {
+                // Items for this day
+                items.forEach(item => {
                     let applies = false;
                     if (item.type === 'payment') {
                         applies = item.finMes ? d >= item.start : (d >= item.start && d <= item.end);
                     } else {
-                        applies = (d === item.start);
+                        applies = d === item.start;
                     }
 
                     if (applies) {
                         let className = "gasto";
-                        if (item.type === 'payment') {
-                            // Check if payment is overdue (from past month) and unpaid
-                            const now = new Date();
-                            const currentYear = now.getFullYear();
-                            const currentMonth = now.getMonth();
-                            const isOverdue = !item.paid && (anio < currentYear || (anio === currentYear && mes < currentMonth));
+                        let statusColor = "";
 
-                            if (isOverdue) {
-                                className += " vencido"; // Red for overdue
-                            } else if (item.paid) {
-                                className += " pagado"; // Green strikethrough for paid
-                            } else {
-                                className += " pendiente"; // Orange for pending (current month)
-                            }
-                        } else {
-                            className += " agenda-item"; // Need to add CSS for this
-                            if (item.paid) className += " pagado"; // Past agenda
-                            else className += " pendiente";
-                        }
+                        // Overdue check for payments
+                        const isOverdue = item.type === 'payment' && !item.paid && (anio < now.getFullYear() || (anio === now.getFullYear() && mes < now.getMonth()));
 
-                        let label = item.nombre;
-                        if (item.type === 'agenda' && item.time) label = `🕒 ${item.time} ${label}`;
+                        if (isOverdue) className += " vencido";
+                        else if (item.paid) className += " pagado";
+                        else className += " pendiente";
 
-                        html += `<div class="${className}" title="${label}">${label}</div>`;
+                        if (item.type === 'agenda') className += " agenda-item";
+
+                        let label = item.name;
+                        if (item.time) label = `🕒 ${item.time} ${label}`;
+
+                        cellHtml += `<div class="${className}" title="${label}">${label}</div>`;
                     }
                 });
-
-                html += `</div>`;
-                calGrid.innerHTML += html;
+                cellHtml += `</div>`;
+                calGrid.innerHTML += cellHtml;
             }
 
-            // 4. Render Checklist (Only Payments for now, or maybe Agenda too? Requests said "filter calendar", implied checklist might need update too or just stay payments? User said "filter dates of payments/appointments" implies visibility. Let's show filtered items in list too.)
-            itemsToRender.forEach(item => {
-                // We only render checkboxes for payments. Agenda items are just read-only/link in this view?
-                // For simplicity and typical UX, checklist is usually for Actions (Payments). 
-                // Agenda items are usually managed in Agenda view. 
-                // However, the user asked for a "Show all" filter. 
-                // Let's render Agenda items as text-only items in the list if selected.
+            // 4. Render Checklists
+            if (!listaPagos || !listaCitas) return; // Safety
 
+            const payments = items.filter(i => i.type === 'payment');
+            const appointments = items.filter(i => i.type === 'agenda');
+
+            // Render Payments
+            if (payments.length === 0) listaPagos.innerHTML = `<div class="empty-state">No hay pagos.</div>`;
+            payments.forEach(p => {
                 const div = document.createElement("div");
                 div.className = "item";
-
-                if (item.type === 'payment') {
-                    div.innerHTML = `
-                        <span>${item.nombre}</span>
-                        <input type="checkbox" ${item.paid ? "checked" : ""}>
-                    `;
-                    div.querySelector("input").onchange = e => {
-                        data[item.id] = e.target.checked;
-                        localStorage.setItem(key, JSON.stringify(data));
-                        syncCloud('payment_update', { key, data });
-                        cargar();
-                    };
-                } else {
-                    // Agenda Item in List
-                    div.innerHTML = `
-                        <span>📅 ${item.start}/${mes + 1}: ${item.nombre} ${item.time || ''}</span>
-                        <span style="font-size:10px; color:var(--text-secondary);">${item.paid ? 'Pasado' : 'Pendiente'}</span>
-                    `;
-                }
+                div.innerHTML = `
+                    <span>${p.name} <small style="color:var(--text-secondary)">(Día ${p.start})</small></span>
+                    <input type="checkbox" ${p.paid ? "checked" : ""}>
+                `;
+                div.querySelector("input").onchange = (e) => {
+                    data[p.id] = e.target.checked;
+                    localStorage.setItem(key, JSON.stringify(data));
+                    cargar();
+                };
                 listaPagos.appendChild(div);
+            });
+
+            // Render Appointments
+            if (appointments.length === 0) listaCitas.innerHTML = `<div class="empty-state">No hay citas.</div>`;
+            appointments.forEach(a => {
+                const div = document.createElement("div");
+                div.className = "item";
+                div.style.cursor = "default"; // No checkbox for agenda here, controlled in Agenda view mostly
+                // But user asked for checklist. Let's add a "done" checkbox for agenda too?
+                // "Restructure checklist into separate Valid Payments and Todo/Appointments"
+                // Let's add a checkbox that updates 'completed' status for agenda.
+
+                div.innerHTML = `
+                    <span>${a.name} <small>${a.time || ''}</small></span>
+                    <input type="checkbox" ${a.paid ? "checked" : ""}>
+                `;
+                div.querySelector("input").onchange = (e) => {
+                    // Update agenda item
+                    const allNotes = getAgenda();
+                    const idx = allNotes.findIndex(n => n.id == a.id);
+                    if (idx !== -1) {
+                        allNotes[idx].completed = e.target.checked;
+                        localStorage.setItem("agenda", JSON.stringify(allNotes));
+                        cargar();
+                    }
+                };
+                listaCitas.appendChild(div);
             });
         }
 
@@ -1915,66 +1955,9 @@
         populateConceptFilter();
 
         /* --- CLOUD SYNC --- */
-        /* --- CLOUD SYNC --- */
-        async function fetchCloudData() {
-            try {
-                const res = await fetch('/.netlify/functions/get-data');
-                if (!res.ok) {
-                    const errText = await res.text();
-                    throw new Error(`Server Error (${res.status}): ${errText}`);
-                }
-                const cloudData = await res.json();
-
-                if (cloudData.agenda) {
-                    localStorage.setItem("agenda", JSON.stringify(cloudData.agenda));
-                }
-                if (cloudData.payments) {
-                    Object.keys(cloudData.payments).forEach(key => {
-                        localStorage.setItem(key, JSON.stringify(cloudData.payments[key]));
-                    });
-                }
-                console.log("Cloud sync successful");
-                cargar(); // Refresh UI
-                renderAgenda();
-                return true; // Success
-            } catch (e) {
-                console.warn("Sync failed:", e);
-                return false; // Failed
-            }
-        }
-
-        async function syncCloud(type, data) {
-            try {
-                await fetch('/.netlify/functions/sync-data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type, data })
-                });
-            } catch (e) {
-                console.warn("Sync failed:", e);
-            }
-        }
-
-        async function manualSync() {
-            const btn = document.getElementById('btn-sync');
-            const originalText = btn.textContent;
-            btn.textContent = "⌛";
-            btn.disabled = true;
-
-            const success = await fetchCloudData();
-
-            if (success) {
-                btn.textContent = "✔";
-            } else {
-                btn.textContent = "❌ Error";
-                alert("Error de conexión con la base de datos.\n\nVerifica:\n1. Que hayas configurado DATABASE_URL en Netlify.\n2. Que hayas ejecutado la inicialización de la BD.");
-            }
-
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }, 3000);
-        }
+        // Initial Load
+        renderAgenda();
+        cargar();
 
         // Initial Load
         renderAgenda();
