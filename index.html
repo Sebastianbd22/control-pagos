@@ -343,7 +343,18 @@
             color: white;
         }
 
-        /* MOBILE */
+        /* AGENDA ITEM IN CALENDAR */
+        .agenda-item {
+            background: rgba(33, 150, 243, 0.15) !important;
+            color: #1976d2 !important;
+        }
+
+        body.dark-mode .agenda-item {
+            background: rgba(33, 150, 243, 0.2) !important;
+            color: #64b5f6 !important;
+        }
+
+        /* --- MOBILE --- */
         @media (max-width: 700px) {
             .app-container {
                 flex-direction: column-reverse;
@@ -569,6 +580,47 @@
             <div class="top-bar">
                 <h2 id="page-title">Pagos del mes</h2>
                 <div class="controls" id="date-controls">
+                    <select id="filter-type" onchange="cargar()">
+                        <option value="all">Todo</option>
+                        <option value="pagos">Pagos</option>
+                        <option value="citas">Citas</option>
+                        <option value="completado">Cumplido</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
+                    <select id="mes"></select>
+                    <select id="anio"></select>
+                </div>
+            </div>
+
+            <!-- VIEW: CHECKLIST -->
+            <div id="checklist" class="view-section active">
+                <div class="checklist-container" id="listaPagos">
+                    <!-- Items injected by JS -->
+                </div>
+            </div>
+
+            <!-- VIEW: CALENDAR -->
+            <div id="calendar" class="view-section">
+                <div class="calendar-wrapper">
+                    <div class="calendar" id="calendar-grid">
+                        <!-- Calendar injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ... (Agenda View, Settings, etc. unchanged) ... -->
+            <!-- (skipping unchanged parts for brevity in tool input, but in real file we would preserve or replace targeted chunks. Since I'm doing a large block replace to ensure context, I'll stick to the plan) -->
+            <!-- Wait, the tool requires me to replace what matches. I should target the top-bar and then the script separately to avoid huge payloads if possible. Let's try to target just the top bar first. -->
+            <div class="top-bar">
+                <h2 id="page-title">Pagos del mes</h2>
+                <div class="controls" id="date-controls">
+                    <select id="filter-type" onchange="cargar()" style="margin-right:5px;">
+                        <option value="all">Todo</option>
+                        <option value="pagos">Pagos</option>
+                        <option value="citas">Citas</option>
+                        <option value="completado">Cumplido</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
                     <select id="mes"></select>
                     <select id="anio"></select>
                 </div>
@@ -1127,67 +1179,146 @@
             const anio = +anioSel.value;
             const key = `${anio}-${mes}`;
             let data = JSON.parse(localStorage.getItem(key)) || {};
+            const filterType = document.getElementById("filter-type").value; // all, pagos, citas, completado, pendiente
 
             // Helper: Date string YYYY-MM
             const currentMonthStr = `${anio}-${String(mes + 1).padStart(2, '0')}`;
 
-            // Filter Concepts
-            const concepts = getConcepts();
-            const activeConcepts = concepts.filter(c => {
-                // Logic: validFrom <= current <= validUntil
-                // Simple string comparison works for ISO YYYY-MM format
-                const afterStart = c.validFrom <= currentMonthStr;
-                const beforeEnd = !c.validUntil || c.validUntil >= currentMonthStr;
-                return afterStart && beforeEnd;
-            });
+            // 1. Prepare Data
+            let itemsToRender = [];
 
-            // 1. Render Calendar Header
+            // A) PAGOS
+            if (filterType !== 'citas') {
+                const concepts = getConcepts();
+                const activeConcepts = concepts.filter(c => {
+                    const afterStart = c.validFrom <= currentMonthStr;
+                    const beforeEnd = !c.validUntil || c.validUntil >= currentMonthStr;
+                    return afterStart && beforeEnd;
+                });
+
+                activeConcepts.forEach(p => {
+                    const isPaid = !!data[p.id];
+                    // Status Filter
+                    if (filterType === 'completado' && !isPaid) return;
+                    if (filterType === 'pendiente' && isPaid) return;
+
+                    itemsToRender.push({
+                        type: 'payment',
+                        id: p.id,
+                        nombre: p.nombre,
+                        start: p.inicio,
+                        end: p.fin || p.inicio,
+                        finMes: p.finMes,
+                        paid: isPaid,
+                        data: p
+                    });
+                });
+            }
+
+            // B) AGENDA (CITAS)
+            if (filterType !== 'pagos') {
+                const notes = getAgenda(); // [{id, text, date, time...}]
+                notes.forEach(n => {
+                    if (!n.date) return;
+                    const nDate = new Date(n.date + "T00:00:00");
+                    if (nDate.getMonth() !== mes || nDate.getFullYear() !== anio) return;
+
+                    const day = nDate.getDate();
+                    // Determine "status" for agenda (Past = Completed, Future/Today = Pending)
+                    const todayStr = new Date().toISOString().slice(0, 10);
+                    const isPast = n.date < todayStr;
+
+                    if (filterType === 'completado' && !isPast) return;
+                    if (filterType === 'pendiente' && isPast) return;
+
+                    itemsToRender.push({
+                        type: 'agenda',
+                        id: n.id,
+                        nombre: n.text,
+                        start: day,
+                        end: day,
+                        finMes: false,
+                        paid: isPast, // repurpose 'paid' as 'completed/past'
+                        data: n,
+                        time: n.time
+                    });
+                });
+            }
+
+            // 2. Render Calendar Header
             ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach(d => {
                 calGrid.innerHTML += `<div class="header">${d}</div>`;
             });
 
-            // 2. Render Calendar Days
+            // 3. Render Calendar Days
             const primerDia = new Date(anio, mes, 1).getDay();
             const totalDias = new Date(anio, mes + 1, 0).getDate();
 
-            // Empty slots
             for (let i = 0; i < primerDia; i++) calGrid.innerHTML += `<div class="day empty"></div>`;
 
-            // Days
             for (let d = 1; d <= totalDias; d++) {
                 let isToday = (d === hoy.getDate() && mes === hoy.getMonth() && anio === hoy.getFullYear());
+                let html = `<div class="day ${isToday ? "today" : ""}"><strong>${d}</strong>`;
 
-                let html = `<div class="day ${isToday ? "today" : ""}">
-                    <strong>${d}</strong>`;
+                // Find items for this day
+                itemsToRender.forEach(item => {
+                    let applies = false;
+                    if (item.type === 'payment') {
+                        applies = item.finMes ? d >= item.start : (d >= item.start && d <= item.end);
+                    } else {
+                        applies = (d === item.start);
+                    }
 
-                activeConcepts.forEach((p) => {
-                    const aplica = p.finMes ? d >= p.inicio : (d >= p.inicio && d <= (p.fin || p.inicio));
-                    // use concept ID for payment status tracking
-                    if (aplica) {
-                        html += `<div class="gasto ${data[p.id] ? "pagado" : "pendiente"}">${p.nombre}</div>`;
+                    if (applies) {
+                        let className = "gasto";
+                        if (item.type === 'payment') {
+                            className += item.paid ? " pagado" : " pendiente";
+                        } else {
+                            className += " agenda-item"; // Need to add CSS for this
+                            if (item.paid) className += " pagado"; // Past agenda
+                            else className += " pendiente";
+                        }
+
+                        let label = item.nombre;
+                        if (item.type === 'agenda' && item.time) label = `🕒 ${item.time} ${label}`;
+
+                        html += `<div class="${className}" title="${label}">${label}</div>`;
                     }
                 });
+
                 html += `</div>`;
                 calGrid.innerHTML += html;
             }
 
-            // 3. Render Checklist
-            activeConcepts.forEach((p) => {
+            // 4. Render Checklist (Only Payments for now, or maybe Agenda too? Requests said "filter calendar", implied checklist might need update too or just stay payments? User said "filter dates of payments/appointments" implies visibility. Let's show filtered items in list too.)
+            itemsToRender.forEach(item => {
+                // We only render checkboxes for payments. Agenda items are just read-only/link in this view?
+                // For simplicity and typical UX, checklist is usually for Actions (Payments). 
+                // Agenda items are usually managed in Agenda view. 
+                // However, the user asked for a "Show all" filter. 
+                // Let's render Agenda items as text-only items in the list if selected.
+
                 const div = document.createElement("div");
                 div.className = "item";
-                div.innerHTML = `
-            <span>${p.nombre}</span>
-            <input type="checkbox" ${data[p.id] ? "checked" : ""}>
-        `;
-                div.querySelector("input").onchange = e => {
-                    data[p.id] = e.target.checked;
-                    localStorage.setItem(key, JSON.stringify(data));
 
-                    // Sync Payment Update
-                    syncCloud('payment_update', { key, data });
-
-                    cargar(); // Re-render to update calendar colors if needed
-                };
+                if (item.type === 'payment') {
+                    div.innerHTML = `
+                        <span>${item.nombre}</span>
+                        <input type="checkbox" ${item.paid ? "checked" : ""}>
+                    `;
+                    div.querySelector("input").onchange = e => {
+                        data[item.id] = e.target.checked;
+                        localStorage.setItem(key, JSON.stringify(data));
+                        syncCloud('payment_update', { key, data });
+                        cargar();
+                    };
+                } else {
+                    // Agenda Item in List
+                    div.innerHTML = `
+                        <span>📅 ${item.start}/${mes + 1}: ${item.nombre} ${item.time || ''}</span>
+                        <span style="font-size:10px; color:var(--text-secondary);">${item.paid ? 'Pasado' : 'Pendiente'}</span>
+                    `;
+                }
                 listaPagos.appendChild(div);
             });
         }
