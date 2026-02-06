@@ -820,8 +820,11 @@
 
         /* --- NAVIGATION LOGIC --- */
         function switchView(viewName) {
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Hide all views: remove active class AND clear specific display overrides
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = ''; // Clear inline display styles (fixes locked views)
+            });
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
 
             // Show selected
