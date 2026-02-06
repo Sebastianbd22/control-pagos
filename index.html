@@ -577,40 +577,9 @@
         <main class="main-content">
 
             <!-- HEADER (Shared) -->
-            <div class="top-bar">
-                <h2 id="page-title">Pagos del mes</h2>
-                <div class="controls" id="date-controls">
-                    <select id="filter-type" onchange="cargar()">
-                        <option value="all">Todo</option>
-                        <option value="pagos">Pagos</option>
-                        <option value="citas">Citas</option>
-                        <option value="completado">Cumplido</option>
-                        <option value="pendiente">Pendiente</option>
-                    </select>
-                    <select id="mes"></select>
-                    <select id="anio"></select>
-                </div>
-            </div>
 
-            <!-- VIEW: CHECKLIST -->
-            <div id="checklist" class="view-section active">
-                <div class="checklist-container" id="listaPagos">
-                    <!-- Items injected by JS -->
-                </div>
-            </div>
 
-            <!-- VIEW: CALENDAR -->
-            <div id="calendar" class="view-section">
-                <div class="calendar-wrapper">
-                    <div class="calendar" id="calendar-grid">
-                        <!-- Calendar injected by JS -->
-                    </div>
-                </div>
-            </div>
 
-            <!-- ... (Agenda View, Settings, etc. unchanged) ... -->
-            <!-- (skipping unchanged parts for brevity in tool input, but in real file we would preserve or replace targeted chunks. Since I'm doing a large block replace to ensure context, I'll stick to the plan) -->
-            <!-- Wait, the tool requires me to replace what matches. I should target the top-bar and then the script separately to avoid huge payloads if possible. Let's try to target just the top bar first. -->
             <div class="top-bar">
                 <h2 id="page-title">Pagos del mes</h2>
                 <div class="controls" id="date-controls">
