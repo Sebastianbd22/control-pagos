@@ -763,7 +763,8 @@
             { nombre: "Gas", inicio: 1, fin: 15 },
             { nombre: "Claro Hogar", inicio: 3, fin: 18 },
             { nombre: "Administración", inicio: 1, fin: 5 },
-            { nombre: "Claro Móvil", inicio: 3, fin: 15 }
+            { nombre: "Claro Móvil", inicio: 3, fin: 15 },
+            { nombre: "Universidad", inicio: 1, fin: 5 } // Added by request
         ];
 
         const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -842,15 +843,37 @@
         /* --- PAYMENT CONCEPTS MANAGEMENT --- */
         function getConcepts() {
             let concepts = JSON.parse(localStorage.getItem("concepts"));
+
             if (!concepts) {
-                // Initialize with default data + IDs and Default Dates
+                // First run: Initialize all defaults
                 concepts = defaultPagos.map((p, idx) => ({
                     ...p,
                     id: Date.now() + idx,
-                    validFrom: "2024-01", // Default start
-                    validUntil: null // Indefinite
+                    validFrom: "2024-01",
+                    validUntil: null
                 }));
                 localStorage.setItem("concepts", JSON.stringify(concepts));
+            } else {
+                // Sync Check: Ensure all defaultPagos exist (by name)
+                // This handles the case where the USER updates the code (adds 'Universidad') 
+                // but their LocalStorage is old.
+                let changed = false;
+                defaultPagos.forEach(def => {
+                    const exists = concepts.some(c => c.nombre === def.nombre);
+                    if (!exists) {
+                        concepts.push({
+                            ...def,
+                            id: Date.now() + Math.floor(Math.random() * 1000), // Random offset to avoid ID collision
+                            validFrom: new Date().toISOString().slice(0, 7), // Valid from NOW
+                            validUntil: null
+                        });
+                        changed = true;
+                    }
+                });
+
+                if (changed) {
+                    saveConcepts(concepts);
+                }
             }
             return concepts;
         }
