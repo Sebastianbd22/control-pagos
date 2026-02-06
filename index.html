@@ -613,12 +613,25 @@
 
             <!-- VIEW: AGENDA -->
             <div id="agenda" class="view-section">
-                <div class="agenda-input-area">
-                    <input type="text" id="note-input" class="agenda-input" placeholder="Escribe una nota o cita..."
-                        onkeypress="if(event.key==='Enter') addNote()">
-                    <input type="date" id="note-date" class="agenda-date">
-                    <input type="time" id="note-time" class="agenda-date">
-                    <button class="btn-add" onclick="addNote()">+</button>
+                <div class="agenda-input-area" style="flex-direction:column; align-items:stretch;">
+                    <input type="hidden" id="note-id">
+                    <input type="text" id="note-input" class="agenda-input" placeholder="Título / Tarea..."
+                        style="width:100%; font-weight:bold;">
+                    <textarea id="note-desc" class="agenda-input" placeholder="Descripción / Detalles (Opcional)..."
+                        style="width:100%; min-height:60px; resize:vertical; font-family:inherit;"></textarea>
+
+                    <div style="display:flex; gap:10px;">
+                        <input type="date" id="note-date" class="agenda-date">
+                        <input type="time" id="note-time" class="agenda-date">
+                        <button class="btn-add" id="btn-save-note" onclick="saveNote()"
+                            style="margin-left:auto; width:auto; padding:0 15px; border-radius:15px;">
+                            Guardar
+                        </button>
+                        <button id="btn-cancel-edit" onclick="resetNoteInput()"
+                            style="display:none; background:transparent; border:1px solid var(--text-secondary); color:var(--text-secondary); padding:0 10px; border-radius:15px; cursor:pointer;">
+                            Cancelar
+                        </button>
+                    </div>
                 </div>
                 <div class="agenda-container" id="agenda-list">
                     <!-- Notes injected by JS -->
@@ -1096,9 +1109,13 @@
 
         /* --- AGENDA LOGIC --- */
         const agendaList = document.getElementById("agenda-list");
+        const noteIdInput = document.getElementById("note-id");
         const noteInput = document.getElementById("note-input");
+        const noteDesc = document.getElementById("note-desc");
         const noteDate = document.getElementById("note-date");
         const noteTime = document.getElementById("note-time");
+        const btnSaveNote = document.getElementById("btn-save-note");
+        const btnCancelEdit = document.getElementById("btn-cancel-edit");
 
         function getAgenda() {
             return JSON.parse(localStorage.getItem("agenda")) || [];
@@ -1108,25 +1125,72 @@
             localStorage.setItem("agenda", JSON.stringify(data));
         }
 
-        function addNote() {
+        function saveNote() {
+            const id = noteIdInput.value;
             const text = noteInput.value.trim();
+            const desc = noteDesc.value.trim();
             const date = noteDate.value;
             const time = noteTime.value;
+
             if (!text) return;
 
             const notes = getAgenda();
-            const newNote = {
-                id: Date.now(),
-                text: text,
-                date: date || null,
-                time: time || null,
-                created: new Date().toLocaleDateString()
-            };
-            notes.unshift(newNote);
+
+            if (id) {
+                // Update existing
+                const index = notes.findIndex(n => n.id == id);
+                if (index !== -1) {
+                    notes[index] = { ...notes[index], text, desc, date, time };
+                    syncCloud('agenda_update', notes[index]);
+                }
+            } else {
+                // Create new
+                const newNote = {
+                    id: Date.now(),
+                    text,
+                    desc,
+                    date: date || null,
+                    time: time || null,
+                    created: new Date().toLocaleDateString()
+                };
+                notes.unshift(newNote);
+                syncCloud('agenda_add', newNote);
+            }
+
             saveAgenda(notes);
-            syncCloud('agenda_add', newNote); // Sync Add
-            noteInput.value = "";
+            resetNoteInput();
             renderAgenda();
+            cargar(); // Update calendar markers
+        }
+
+        function editNote(id) {
+            const notes = getAgenda();
+            const note = notes.find(n => n.id == id);
+            if (!note) return;
+
+            noteIdInput.value = note.id;
+            noteInput.value = note.text;
+            noteDesc.value = note.desc || "";
+            noteDate.value = note.date || "";
+            noteTime.value = note.time || "";
+
+            btnSaveNote.textContent = "Actualizar";
+            btnCancelEdit.style.display = "block";
+            noteInput.focus();
+
+            // Scroll to top
+            document.querySelector('.view-section.active').scrollTop = 0;
+        }
+
+        function resetNoteInput() {
+            noteIdInput.value = "";
+            noteInput.value = "";
+            noteDesc.value = "";
+            noteDate.value = "";
+            noteTime.value = "";
+
+            btnSaveNote.textContent = "Guardar";
+            btnCancelEdit.style.display = "none";
         }
 
         function deleteNote(id) {
@@ -1134,7 +1198,12 @@
             const notes = getAgenda().filter(n => n.id !== id);
             saveAgenda(notes);
             syncCloud('agenda_delete', { id }); // Sync Delete
+
+            // If we deleted the one being edited, reset form
+            if (noteIdInput.value == id) resetNoteInput();
+
             renderAgenda();
+            cargar();
         }
 
         function renderAgenda() {
@@ -1151,13 +1220,20 @@
                 const displayDate = n.date ? new Date(n.date).toLocaleDateString() : n.created;
                 const displayTime = n.time ? ` • ⏰ ${n.time}` : "";
 
+                // Description with newlines
+                const descHtml = n.desc ? `<div style="margin-top:5px; font-size:13px; color:var(--text-secondary); white-space:pre-wrap;">${n.desc}</div>` : '';
+
                 agendaList.innerHTML += `
                     <div class="note-card">
                         <div class="note-header">
                             <span>📅 ${displayDate}${displayTime}</span>
-                            <button class="btn-delete-note" onclick="deleteNote(${n.id})">×</button>
+                            <div>
+                                <button class="btn-delete-note" onclick="editNote(${n.id})" style="color:var(--accent); font-size:18px; margin-right:5px;">✎</button>
+                                <button class="btn-delete-note" onclick="deleteNote(${n.id})">×</button>
+                            </div>
                         </div>
-                        <div class="note-body">${n.text}</div>
+                        <div class="note-body" style="font-weight:500;">${n.text}</div>
+                        ${descHtml}
                     </div>
                 `;
             });
