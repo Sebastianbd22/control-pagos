@@ -580,12 +580,15 @@
             <div class="top-bar">
                 <h2 id="page-title">Pagos del mes</h2>
                 <div class="controls" id="date-controls">
+                    <select id="filter-concept" onchange="cargar()" style="margin-right:5px; max-width: 120px;">
+                        <option value="all">Concepto: Todos</option>
+                    </select>
                     <select id="filter-type" onchange="cargar()" style="margin-right:5px;">
-                        <option value="all">Todo</option>
+                        <option value="all">Ver: Todo</option>
                         <option value="pagos">Pagos</option>
                         <option value="citas">Citas</option>
                         <option value="completado">Cumplido</option>
-                        <option value="pendiente">Pendiente</option>
+                        <option value="pendiente" selected>Pendiente</option>
                     </select>
                     <select id="mes"></select>
                     <select id="anio"></select>
@@ -855,6 +858,7 @@
         function saveConcepts(concepts) {
             localStorage.setItem("concepts", JSON.stringify(concepts));
             syncCloud('concepts_update', concepts);
+            populateConceptFilter();
         }
 
         function openConceptManager() {
@@ -1136,6 +1140,28 @@
             });
         }
 
+        /* --- CONCEPTS FILTER LOGIC --- */
+        function populateConceptFilter() {
+            const select = document.getElementById("filter-concept");
+            if (!select) return;
+            const currentVal = select.value;
+            const concepts = getConcepts();
+
+            // Keep "All" option
+            select.innerHTML = '<option value="all">Concepto: Todos</option>';
+
+            concepts.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+            });
+
+            // Restore selection if possible, otherwise default to all
+            if (currentVal && (currentVal === 'all' || concepts.find(c => c.id == currentVal))) {
+                select.value = currentVal;
+            } else {
+                select.value = 'all';
+            }
+        }
+
         /* --- CORE LOGIC (Render) --- */
         function cargar() {
             calGrid.innerHTML = "";
@@ -1145,7 +1171,10 @@
             const anio = +anioSel.value;
             const key = `${anio}-${mes}`;
             let data = JSON.parse(localStorage.getItem(key)) || {};
+
             const filterType = document.getElementById("filter-type").value; // all, pagos, citas, completado, pendiente
+            const filterConceptEl = document.getElementById("filter-concept");
+            const filterConceptId = filterConceptEl ? filterConceptEl.value : 'all';
 
             // Helper: Date string YYYY-MM
             const currentMonthStr = `${anio}-${String(mes + 1).padStart(2, '0')}`;
@@ -1157,6 +1186,9 @@
             if (filterType !== 'citas') {
                 const concepts = getConcepts();
                 const activeConcepts = concepts.filter(c => {
+                    // ID Filter
+                    if (filterConceptId !== 'all' && c.id != filterConceptId) return false;
+
                     const afterStart = c.validFrom <= currentMonthStr;
                     const beforeEnd = !c.validUntil || c.validUntil >= currentMonthStr;
                     return afterStart && beforeEnd;
@@ -1182,7 +1214,8 @@
             }
 
             // B) AGENDA (CITAS)
-            if (filterType !== 'pagos') {
+            // Only show agenda if we are NOT filtering by a specific concept (Agenda has no concept)
+            if (filterType !== 'pagos' && filterConceptId === 'all') {
                 const notes = getAgenda(); // [{id, text, date, time...}]
                 notes.forEach(n => {
                     if (!n.date) return;
@@ -1295,6 +1328,7 @@
 
         // Boostrap
         initTheme();
+        populateConceptFilter();
 
         /* --- CLOUD SYNC --- */
         /* --- CLOUD SYNC --- */
