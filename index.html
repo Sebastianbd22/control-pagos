@@ -38,30 +38,144 @@
             --cal-header: #f8f9fa;
             --cal-border: #dfe6e9;
             --day-hover: #f1f2f6;
+
+            /* Checklist Item Colors (Light) */
+            --chk-bg-overdue: #ffebee;
+            --chk-text-overdue: #c62828;
+            --chk-border-overdue: #e53935;
+
+            --chk-bg-upcoming: #fff3e0;
+            --chk-text-upcoming: #ef6c00;
+            --chk-border-upcoming: #fb8c00;
+
+            --chk-bg-future: #e3f2fd;
+            --chk-text-future: #1565c0;
+            --chk-border-future: #1e88e5;
+
+            --chk-bg-default: var(--bg-panel);
+            --chk-text-default: var(--text-primary);
         }
 
         body.dark-mode {
-            --bg-app: #1e272e;
-            --bg-sidebar: #2d3436;
-            --bg-panel: #2d3436;
-            --text-primary: #dfe6e9;
-            --text-secondary: #b2bec3;
-            --accent: #74b9ff;
-            --accent-hover: #0984e3;
-            --border-color: #353b48;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            /* iOS Dark Mode Standard */
+            --bg-app: #000000;
+            --bg-sidebar: #1C1C1E;
+            /* iOS Card/Modal BG */
+            --bg-panel: #1C1C1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #EBEBF5;
+            /* iOS High Contrast Light Grey */
+            /* iOS System Gray */
+            --accent: #0A84FF;
+            /* iOS System Blue Dark Mode */
+            --accent-hover: #409CFF;
+            --border-color: #38383A;
+            /* Subtler border */
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            /* Heavier shadow for depth */
 
-            --status-paid-bg: rgba(37, 187, 57, 0.15);
-            --status-paid-text: #55efc4;
-            --status-pending-bg: rgba(243, 156, 18, 0.15);
-            --status-pending-text: #ffeaa7;
-            --status-overdue-bg: rgba(231, 76, 60, 0.15);
-            --status-overdue-text: #ff7675;
+            --status-paid-bg: rgba(48, 209, 88, 0.2);
+            --status-paid-text: #30D158;
+            /* iOS Green */
+            --status-pending-bg: rgba(255, 159, 10, 0.2);
+            --status-pending-text: #FF9F0A;
+            /* iOS Orange */
+            --status-overdue-bg: rgba(255, 69, 58, 0.2);
+            --status-overdue-text: #FF453A;
+            /* iOS Red */
 
-            --cal-bg: #2d3436;
-            --cal-header: #353b48;
-            --cal-border: #353b48;
-            --day-hover: #3d464d;
+            --cal-bg: #1C1C1E;
+            --cal-header: #2C2C2E;
+            --cal-border: #38383A;
+            --day-hover: #2C2C2E;
+
+            /* Checklist Item Colors (Dark) */
+            --chk-bg-overdue: rgba(255, 69, 58, 0.15);
+            --chk-text-overdue: #FF453A;
+            --chk-border-overdue: #FF453A;
+
+            --chk-bg-upcoming: rgba(255, 159, 10, 0.15);
+            --chk-text-upcoming: #FF9F0A;
+            --chk-border-upcoming: #FF9F0A;
+
+            --chk-bg-future: rgba(10, 132, 255, 0.15);
+            --chk-text-future: #0A84FF;
+            --chk-border-future: #0A84FF;
+
+            --chk-bg-default: var(--bg-panel);
+            --chk-text-default: var(--text-primary);
+        }
+
+        /* FORCE WHITE TEXT IN DARK MODE FOR ALL ELEMENTS */
+        /* FORCE WHITE TEXT IN DARK MODE FOR ALL ELEMENTS */
+        body.dark-mode {
+            color: var(--text-primary);
+            /* Base fallback */
+        }
+
+        body.dark-mode * {
+            border-color: var(--border-color);
+        }
+
+        /* Specific High-Contrast Overrides */
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4,
+        body.dark-mode h5,
+        body.dark-mode h6,
+        body.dark-mode strong,
+        body.dark-mode b,
+        body.dark-mode label,
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea,
+        body.dark-mode .card-title,
+        body.dark-mode .item,
+        body.dark-mode .nav-btn,
+        body.dark-mode button,
+        body.dark-mode .gasto,
+        body.dark-mode li,
+        body.dark-mode span,
+        body.dark-mode div {
+            color: var(--text-primary) !important;
+        }
+
+        /* Exceptions for specific colored elements */
+        body.dark-mode .text-secondary,
+        body.dark-mode .card-meta,
+        body.dark-mode .note-header,
+        body.dark-mode .header {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Ensure placeholders are visible */
+        body.dark-mode ::placeholder {
+            color: var(--text-secondary);
+            opacity: 1;
+        }
+
+        /* Colored Status Overrides (Must have higher specificity) */
+        body.dark-mode .pendiente {
+            color: #ffcc80 !important;
+        }
+
+        body.dark-mode .pagado {
+            color: #a5d6a7 !important;
+        }
+
+        body.dark-mode .vencido {
+            color: #ef9a9a !important;
+        }
+
+        body.dark-mode .agenda-item {
+            color: #64b5f6 !important;
+        }
+
+        /* SPECIFIC FIXES */
+        body.dark-mode select option {
+            background-color: var(--bg-panel);
+            color: var(--text-primary);
         }
 
         * {
@@ -77,75 +191,94 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            /* Clean font */
-            background: var(--bg-app);
-            color: var(--text-primary);
+            background: #000;
+            /* Dark background for desktop wrapper */
             margin: 0;
             height: 100vh;
             height: 100dvh;
             display: flex;
-            overflow: hidden;
-            transition: background 0.3s, color 0.3s;
+            justify-content: center;
+            align-items: center;
         }
 
         /* --- LAYOUT --- */
         .app-container {
             display: flex;
+            flex-direction: column-reverse;
+            /* Bottom Nav */
             width: 100%;
+            max-width: 430px;
+            /* iPhone Pro Max width */
             height: 100%;
-            max-width: 1800px;
-            margin: 0 auto;
+            max-height: 932px;
+            /* iPhone Pro Max height */
             background: var(--bg-app);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
         }
 
-        /* --- SIDEBAR --- */
+        /* --- BOTTOM NAVIGATION (Previously Sidebar) --- */
         .sidebar {
-            width: 70px;
-            /* Slightly wider */
+            width: 100%;
+            height: auto;
+            min-height: 80px;
+            /* Taller for safe area */
             background: var(--bg-sidebar);
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 25px;
-            border-right: 1px solid var(--border-color);
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: flex-start;
+            /* Align icons top */
+            padding-top: 12px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            border-top: 1px solid var(--border-color);
             z-index: 100;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+            flex-shrink: 0;
         }
 
         .nav-btn {
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             border-radius: 12px;
-            /* Soft square */
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
             cursor: pointer;
             color: var(--text-secondary);
             transition: all 0.2s ease;
             background: transparent;
             border: none;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .nav-btn:hover {
-            background: var(--bg-app);
+            background: transparent;
             color: var(--accent);
             transform: translateY(-2px);
         }
 
         .nav-btn.active {
-            background: var(--accent);
-            color: #fff;
-            /* Active is solid accent now */
-            box-shadow: 0 4px 10px rgba(9, 132, 227, 0.3);
+            color: var(--accent);
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .nav-btn.active svg {
+            fill: var(--accent);
+            filter: drop-shadow(0 2px 4px rgba(var(--accent-rgb), 0.3));
         }
 
         .nav-btn svg {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            /* Larger icons */
+            height: 26px;
             fill: currentColor;
+            transition: fill 0.2s;
         }
+
+        /* Optional labels for bottom nav? User wanted minimalist. Keeping icons only for now or small labels if needed. */
 
         /* --- MAIN CONTENT --- */
         .main-content {
@@ -153,58 +286,84 @@
             display: flex;
             flex-direction: column;
             background: var(--bg-app);
-            /* App bg, panels will be white */
             position: relative;
             overflow: hidden;
+            width: 100%;
         }
 
         .top-bar {
-            height: 70px;
+            height: 60px;
+            /* Standard mobile header */
+            min-height: 60px;
             background: var(--bg-panel);
             display: flex;
             align-items: center;
-            padding: 0 30px;
+            padding: 0 20px;
             border-bottom: 1px solid var(--border-color);
             justify-content: space-between;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            padding-top: max(10px, env(safe-area-inset-top));
+            /* Safe area */
+            z-index: 10;
         }
 
         .top-bar h2 {
             margin: 0;
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--text-primary);
-            letter-spacing: -0.5px;
         }
 
         .controls {
             display: flex;
             gap: 12px;
-            flex-wrap: wrap;
-            /* Prevent overflow */
+            align-items: center;
         }
 
-        /* Fixed Selects */
+        /* Hidden Filters */
+        #filter-overlay {
+            display: none;
+            position: absolute;
+            top: 70px;
+            /* Below top bar */
+            left: 0;
+            width: 100%;
+            background: var(--bg-panel);
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+            border-bottom: 1px solid var(--border-color);
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #filter-overlay.open {
+            display: flex;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Fixed Mobile Selects - Cleaner look */
         select {
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
             background: var(--bg-app);
             color: var(--text-primary);
             font-size: 14px;
             outline: none;
-            cursor: pointer;
-            transition: border 0.2s;
-            min-width: 100px;
-            /* Ensure readability */
-            max-width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        select:hover {
-            border-color: var(--accent);
+            width: 100%;
+            /* Full width in overlay */
         }
 
         /* --- VIEWS --- */
@@ -212,11 +371,20 @@
             display: none;
             flex: 1;
             overflow-y: auto;
-            padding: 30px;
+            overflow-x: hidden;
+            padding: 20px;
+            height: 100%;
+            box-sizing: border-box;
+            background: var(--bg-app);
+            -webkit-overflow-scrolling: touch;
+            /* Smooth scroll */
+            padding-bottom: 20px;
+            /* Space above nav */
         }
 
         .view-section.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
             animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -232,51 +400,46 @@
             }
         }
 
-        /* --- DASHBOARD REDESIGN --- */
+        /* --- DASHBOARD REDESIGN (Mobile Focused & Clean) --- */
         .dashboard-container {
-            max-width: 1200px;
-            /* Wider for grid */
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            /* Masonry-like */
+            display: flex;
+            flex-direction: column;
             gap: 24px;
-            padding-bottom: 80px;
+            /* More breathing room */
+            padding-bottom: 100px;
+            /* More bottom space */
         }
 
         .db-header-card {
-            grid-column: 1 / -1;
             background: linear-gradient(135deg, var(--accent), var(--accent-hover));
             color: white;
             padding: 25px;
-            border-radius: var(--card-radius);
-            box-shadow: 0 8px 20px rgba(9, 132, 227, 0.25);
+            /* More padding */
+            border-radius: 20px;
+            /* Softer corners */
+            box-shadow: 0 8px 25px rgba(9, 132, 227, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .db-stat {
-            text-align: center;
-        }
-
         .db-stat .label {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.9;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .db-stat .value {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             margin-top: 5px;
         }
 
         .dashboard-section {
             background: var(--bg-panel);
-            border-radius: var(--card-radius);
-            padding: 20px;
+            border-radius: 12px;
+            padding: 15px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
         }
@@ -286,16 +449,16 @@
         }
 
         .dashboard-section h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             margin-top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 8px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .dashboard-card {
@@ -330,34 +493,88 @@
             border-left: 4px solid var(--accent);
         }
 
+        .checkbox-card {
+            padding: 8px 12px;
+            /* Minimalist compact padding */
+            min-height: 50px;
+            display: flex;
+            flex-direction: row !important;
+            /* Force row layout */
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            text-align: left;
+            /* Ensure text is left aligned */
+        }
+
+        .checkbox-card .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            align-items: flex-start;
+            /* Align content to start */
+        }
+
+        .checkbox-card .card-action {
+            display: flex;
+            align-items: center;
+        }
+
         .card-title {
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
+            /* Slightly smaller for minimalism */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .card-meta {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
-            display: flex;
-            justify-content: space-between;
+        }
+
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--status-paid-text);
+            cursor: pointer;
+            flex-shrink: 0;
         }
 
         /* --- CHECKLIST LISTA --- */
         .checklist-container {
             background: var(--bg-panel);
-            border-radius: var(--card-radius);
-            box-shadow: var(--shadow);
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            height: 100%;
+        }
+
+        .checklist-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 15px 0;
+            padding: 0 15px;
         }
 
         .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 18px 24px;
+            padding: 15px 20px;
             border-bottom: 1px solid var(--border-color);
-            transition: 0.2s;
+            transition: background 0.2s;
         }
 
         .item:last-child {
@@ -369,65 +586,175 @@
         }
 
         .item input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
             accent-color: var(--accent);
+            border-radius: 4px;
+            /* Attempt to style check */
         }
 
         /* --- CALENDAR --- */
+        /* --- VIEWS --- */
+        .view-section {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            height: 100%;
+            /* Force full height */
+            box-sizing: border-box;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- CALENDAR CLEANUP (Mobile) --- */
         .calendar-wrapper {
             background: var(--bg-panel);
-            border-radius: var(--card-radius);
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: var(--shadow);
-            height: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border-color);
         }
 
+        .day {
+            background: var(--bg-panel);
+            padding: 4px;
+            /* Reduce padding to fit dots */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Center date and dots */
+            min-height: 0;
+            overflow: hidden;
+        }
+
         .day strong {
-            background: var(--bg-app);
-            /* Default date circle bg */
+            width: 24px;
+            height: 24px;
             font-size: 12px;
-            width: 26px;
-            height: 26px;
-            line-height: 26px;
-            border-radius: 50%;
-            text-align: center;
+            margin-bottom: 2px;
         }
 
-        .today strong {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 2px 5px rgba(9, 132, 227, 0.4);
-        }
-
+        /* Event Indicator (Dot) */
         .gasto {
-            padding: 4px 8px;
-            margin-top: 2px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            width: 8px;
+            height: 8px;
+            padding: 0;
+            border-radius: 50%;
+            margin: 1px;
+            text-indent: -9999px;
+            /* Hide text */
+            border: none;
+            display: inline-block;
         }
 
+        .gasto:hover {
+            transform: scale(1.5);
+            z-index: 2;
+        }
+
+        .calendar {
+            gap: 0;
+            /* Seamless */
+            border: none;
+        }
+
+        /* Container for dots */
+        .dots-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px;
+            width: 100%;
+        }
+
+        /* LIGHT MODE COLORS */
         .pendiente {
-            background: var(--status-pending-bg);
-            color: var(--status-pending-text);
+            background: rgba(255, 159, 67, 0.2);
+            color: #d35400;
+            border-left: 3px solid #d35400;
         }
 
         .pagado {
-            background: var(--status-paid-bg);
-            color: var(--status-paid-text);
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border-left: 3px solid #27ae60;
             text-decoration: none;
-            opacity: 0.8;
+            opacity: 1;
         }
 
         .vencido {
-            background: var(--status-overdue-bg) !important;
-            color: var(--status-overdue-text) !important;
+            background: rgba(231, 76, 60, 0.2) !important;
+            color: #c0392b !important;
+            border-left: 3px solid #c0392b;
+        }
+
+        /* DARK MODE OVERRIDES */
+        body.dark-mode .pendiente {
+            background: rgba(211, 84, 0, 0.25);
+            color: #ffcc80;
+            border-left: 3px solid #e67e22;
+        }
+
+        body.dark-mode .pagado {
+            background: rgba(39, 174, 96, 0.25);
+            color: #a5d6a7;
+            border-left: 3px solid #2ecc71;
+        }
+
+        body.dark-mode .vencido {
+            background: rgba(192, 57, 43, 0.25) !important;
+            color: #ef9a9a !important;
+            border-left: 3px solid #e74c3c;
+        }
+
+        /* CALENDAR GRID FIX */
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-auto-rows: 1fr;
+            /* Equal height rows filling space */
+            gap: 1px;
+            background: var(--border-color);
+            /* Grid lines */
+            height: 100%;
+            padding: 1px;
+            /* Show outer border */
+            overflow: hidden;
+            /* No scroll inside */
+        }
+
+        .day {
+            background: var(--bg-panel);
+            /* Cell bg */
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            /* Allow shrink */
+            overflow: hidden;
+        }
+
+        .day.empty {
+            background: var(--bg-app);
+            /* Slightly different for empty */
+        }
+
+        .header {
+            background: var(--bg-panel);
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
         }
 
         /* --- SETTINGS --- */
@@ -476,100 +803,8 @@
         }
 
         /* --- MOBILE --- */
-        @media (max-width: 700px) {
-            .app-container {
-                flex-direction: column-reverse;
-                /* Sidebar at bottom */
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-                min-height: 60px;
-                flex-direction: row;
-                justify-content: space-around;
-                padding-top: 5px;
-                padding-bottom: calc(5px + env(safe-area-inset-bottom));
-                border-right: none;
-                border-top: 1px solid var(--border-color);
-                background: var(--bg-sidebar);
-                flex-shrink: 0;
-                z-index: 1000;
-            }
-
-            .nav-btn {
-                margin-bottom: 0;
-                width: 50px;
-                height: 50px;
-            }
-
-            .nav-btn svg {
-                width: 32px;
-                height: 32px;
-            }
-
-            /* CALENDAR FIX */
-            .calendar {
-                gap: 1px;
-                width: 100%;
-                /* Ensure it fits container */
-            }
-
-            .day {
-                min-height: 50px;
-                font-size: 10px;
-                padding: 2px;
-                /* Reduce padding */
-                overflow: hidden;
-                /* Prevent spillover */
-                min-width: 0;
-                /* Allow grid items to shrink below content size */
-            }
-
-            .gasto {
-                font-size: 8px;
-                /* Smaller font */
-                padding: 1px 2px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 100%;
-                /* Ensure text truncates */
-            }
-
-            /* AGENDA FIX */
-            .agenda-container {
-                width: 100%;
-                /* Fit width */
-                padding: 0 10px 80px 10px;
-                /* Add side padding, keep bottom space */
-                box-sizing: border-box;
-                /* Include padding in width */
-            }
-
-            .agenda-input-area {
-                flex-wrap: wrap;
-                /* Allow inputs to wrap if needed */
-                gap: 5px;
-                padding: 10px;
-            }
-
-            .agenda-input {
-                width: 100%;
-                /* Full width input */
-                margin-bottom: 5px;
-            }
-
-            .agenda-date {
-                flex: 1;
-                /* Share space */
-            }
-
-            .btn-add {
-                margin-left: auto;
-                /* Push to right */
-            }
-        }
+        /* Hide Media Queries as we are enforcing mobile layout globally */
+        /* @media (max-width: 700px) ... REMOVED/ADAPTED */
 
         /* --- AGENDA VIEW --- */
         .agenda-container {
@@ -590,13 +825,14 @@
 
         .agenda-input {
             flex: 1;
-            padding: 10px;
-            border-radius: 20px;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            /* Better input size */
             border: 1px solid var(--border-color);
             background: var(--bg-sidebar);
             color: var(--text-primary);
             outline: none;
-            font-size: 14px;
         }
 
         .agenda-date {
@@ -676,6 +912,8 @@
             color: var(--text-primary);
             display: flex;
             align-items: center;
+            justify-content: center;
+            /* Centered */
             gap: 8px;
         }
 
@@ -727,6 +965,53 @@
             margin-bottom: 15px;
             opacity: 0.3;
         }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 5px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 160px;
+            margin-top: 5px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.1s ease;
+        }
+
+        .dropdown-menu div {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+
+        .dropdown-menu div:hover {
+            background: var(--bg-app);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -741,10 +1026,10 @@
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                 </svg>
             </button>
-            <button class="nav-btn" onclick="switchView('checklist')" title="Lista de Pagos">
-                <!-- CHECK ICON -->
+            <button class="nav-btn" onclick="switchView('checklist')" title="Mi Agenda">
+                <!-- LIST/AGENDA ICON -->
                 <svg viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
                 </svg>
             </button>
             <button class="nav-btn" onclick="switchView('calendar')" title="Calendario">
@@ -752,13 +1037,6 @@
                 <svg viewBox="0 0 24 24">
                     <path
                         d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
-                </svg>
-            </button>
-            <button class="nav-btn" onclick="switchView('agenda')" title="Agenda">
-                <!-- NOTEBOOK ICON -->
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M3 17h2v5H3zM3 10h2v5H3zM3 3h2v5H3zM9 17h12v-2H9v2zm2-9v-2h-2v2h2zm-2 5h12v-2H9v2zM15 3H9v2h2v4h2V5h2V3z" />
                 </svg>
             </button>
             <button class="nav-btn" onclick="switchView('settings')" title="Configuración">
@@ -773,13 +1051,41 @@
         <!-- MAIN AREA -->
         <main class="main-content">
             <!-- TOP BAR -->
+            <!-- TOP BAR -->
             <div class="top-bar">
                 <h2 id="page-title">Dashboard</h2>
-                <div id="date-controls" class="controls" style="display:none;">
-                    <select id="mes"></select>
-                    <select id="anio"></select>
+
+                <div class="controls">
+                    <!-- Date Controls (Simplified) -->
+                    <div id="date-controls" style="display:none; gap:10px;">
+                        <select id="mes" style="width: auto; padding: 6px 10px;"></select>
+                        <select id="anio" style="width: auto; padding: 6px 10px;"></select>
+                    </div>
+
+                    <!-- Filter Toggle Button (For Checklist) -->
+                    <button id="filter-toggle-btn" onclick="toggleFilterOverlay()" class="btn-toggle"
+                        style="display:none; background:transparent; color:var(--text-primary); padding: 8px;">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+                        </svg>
+                    </button>
+
+                    <!-- Add Button -->
+                    <div style="position:relative;">
+                        <button onclick="toggleAddMenu()" class="btn-toggle"
+                            style="background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius: 50%; padding:0;">
+                            <span style="font-size:20px; line-height:1;">+</span>
+                        </button>
+                        <div id="add-menu" class="dropdown-menu" style="right:0; width:180px;">
+                            <div onclick="openEditModal(); toggleAddMenu();">Nuevo Pago</div>
+                            <div onclick="openNoteModal(); toggleAddMenu();">Nueva Actividad</div>
+                        </div>
+                    </div>
                 </div>
-                <div id="filter-controls" class="controls" style="display:none;">
+
+                <!-- FILTER OVERLAY -->
+                <div id="filter-overlay">
+                    <label style="font-size:12px; color:var(--text-secondary); margin-bottom:-5px;">Mostrar:</label>
                     <select id="filter-type">
                         <option value="all">Todo</option>
                         <option value="pagos">Pagos</option>
@@ -787,18 +1093,17 @@
                         <option value="completado">Completado</option>
                         <option value="pendiente" selected>Pendiente</option>
                     </select>
+
+                    <label style="font-size:12px; color:var(--text-secondary); margin-bottom:-5px;">Concepto:</label>
                     <select id="filter-concept">
                         <option value="all">Concepto: Todos</option>
                     </select>
+
+                    <button onclick="toggleFilterOverlay()"
+                        style="background:var(--accent); color:white; border:none; padding:10px; border-radius:8px; margin-top:5px;">Aplicar
+                        Filtros</button>
                 </div>
-                <button id="settings-icon" onclick="switchView('settings')" title="Configuración"
-                    style="background:transparent; border:none; cursor:pointer; padding:8px;">
-                    <!-- Settings icon -->
-                    <svg width="24" height="24" fill="var(--text-secondary)" viewBox="0 0 24 24">
-                        <path
-                            d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.09-.16-.26-.25-.44-.25-.06 0-.12.01-.17.03l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.06-.02-.12-.03-.18-.03-.17 0-.34.09-.43.25l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.09.16.26.25.44.25.06 0 .12-.01.17-.03l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.06.02.12.03.18.03.17 0 .34-.09.43.25l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zm-1.98-1.71c.04.31.05.52.05.73 0 .21-.02.43-.05.73l-.14 1.13.89.7 1.08.84-.7 1.21-1.27-.51-1.04-.42-.9.68c-.43.32-.84.56-1.25.73l-1.06.43-.16 1.13-.2 1.35h-1.4l-.19-1.35-.16-1.13-1.06-.43c-.43-.18-.83-.41-1.23-.71l-.91-.7-1.06.43-1.27.51-.7-1.21 1.08-.84.89-.7-.14-1.13c-.03-.31-.05-.54-.05-.74s.02-.43.05-.73l.14-1.13-.89-.7-1.08-.84.7-1.21 1.27.51 1.04.42.9-.68c.43-.32.84-.56 1.25-.73l1.06-.43.16-1.13.2-1.35h1.39l.19 1.35.16 1.13 1.06.43c.43.18.83.41 1.23.71l.91-.7 1.06-.43 1.27-.51.7 1.21-1.07.85-.89.7.14 1.13zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
-                    </svg>
-                </button>
+
             </div>
 
             <!-- VIEW: DASHBOARD -->
@@ -806,7 +1111,7 @@
                 <div class="dashboard-container">
                     <div class="db-header-card">
                         <div>
-                            <h2 style="margin:0; font-size:24px;">Hola! 👋</h2>
+                            <h2 id="welcome-message" style="margin:0; font-size:24px;">Hola!</h2>
                             <span style="opacity:0.8; font-size:14px;">Total del mes</span>
                         </div>
                         <div class="db-stat">
@@ -816,17 +1121,17 @@
                     </div>
 
                     <div class="dashboard-section" id="section-overdue" style="display:none;">
-                        <h3>⚠️ Pagos Vencidos</h3>
+                        <h3>Pagos Vencidos</h3>
                         <div id="overdue-list"></div>
                     </div>
 
                     <div class="dashboard-section">
-                        <h3>📅 Próximos 7 Días</h3>
+                        <h3>Próximos 7 Días</h3>
                         <div id="upcoming-list"></div>
                     </div>
 
                     <div class="dashboard-section">
-                        <h3>📊 Resumen Mensual</h3>
+                        <h3>Resumen Mensual</h3>
                         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                             <span>Pagado</span>
                             <strong style="color:var(--status-paid-text)" id="db-total-paid">$0</strong>
@@ -842,18 +1147,32 @@
                 </div>
             </div>
 
-            <!-- VIEW: CHECKLIST -->
+            <!-- VIEW: LISTA DE PAGOS / CHECKLIST -->
             <div id="checklist" class="view-section">
-                <!-- Payments Section -->
-                <h3 class="checklist-header" data-i18n="pending_payments">Pagos Pendientes</h3>
-                <div class="checklist-container" id="listaPagos">
-                    <!-- Items injected by JS -->
-                </div>
+                <!-- Action Buttons -->
+                <!-- Action Buttons: Moved to Top Bar -->
+                <div style="margin-bottom:20px;"></div>
 
-                <!-- Tasks/Agenda Section -->
-                <h3 class="checklist-header" style="margin-top:30px;" data-i18n="todo_list">Por Hacer / Citas</h3>
-                <div class="checklist-container" id="listaTareas">
-                    <!-- Tasks injected by JS -->
+                <div class="row" style="display:flex; flex-wrap:wrap; gap:20px;">
+                    <!-- COL 1: PAGOS -->
+                    <div style="flex:1; min-width:300px;">
+                        <div class="checklist-container" id="listaPagosContainer">
+                            <h3 class="checklist-header">
+                                <span data-i18n="pending_payments">Pagos Pendientes</span>
+                            </h3>
+                            <div id="listaPagos"></div>
+                        </div>
+                    </div>
+
+                    <!-- COL 2: AGENDA/TAREAS -->
+                    <div style="flex:1; min-width:300px;">
+                        <div class="checklist-container" id="listaTareasContainer">
+                            <h3 class="checklist-header">
+                                <span data-i18n="todo_list">Por Hacer / Citas</span>
+                            </h3>
+                            <div id="listaTareas"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -866,37 +1185,21 @@
                 </div>
             </div>
 
-            <!-- VIEW: AGENDA -->
-            <div id="agenda" class="view-section">
-                <div class="agenda-input-area" style="flex-direction:column; align-items:stretch;">
-                    <input type="hidden" id="note-id">
-                    <input type="text" id="note-input" class="agenda-input" placeholder="Título / Tarea..."
-                        style="width:100%; font-weight:bold;">
-                    <textarea id="note-desc" class="agenda-input" placeholder="Descripción / Detalles (Opcional)..."
-                        style="width:100%; min-height:60px; resize:vertical; font-family:inherit;"></textarea>
-
-                    <div style="display:flex; gap:10px;">
-                        <input type="date" id="note-date" class="agenda-date">
-                        <input type="time" id="note-time" class="agenda-date">
-                        <button class="btn-add" id="btn-save-note" onclick="saveNote()"
-                            style="margin-left:auto; width:auto; padding:0 15px; border-radius:15px;">
-                            Guardar
-                        </button>
-                        <button id="btn-cancel-edit" onclick="resetNoteInput()"
-                            style="display:none; background:transparent; border:1px solid var(--text-secondary); color:var(--text-secondary); padding:0 10px; border-radius:15px; cursor:pointer;">
-                            Cancelar
-                        </button>
-                    </div>
-                </div>
-                <div class="agenda-container" id="agenda-list">
-                    <!-- Notes injected by JS -->
-                </div>
-            </div>
+            <!-- VIEW: AGENDA (Removed as per instruction to merge with checklist) -->
+            <!-- The content of the original agenda view is now handled by openNoteModal() -->
 
             <!-- VIEW: SETTINGS -->
             <div id="settings" class="view-section">
                 <div class="settings-container">
                     <h3 data-i18n="settings">Configuración</h3>
+
+                    <div class="setting-item">
+                        <span>Nombre de Usuario</span>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="username-input" class="agenda-input" placeholder="Tu Nombre"
+                                style="width:150px;" onchange="saveUsername(this.value)">
+                        </div>
+                    </div>
 
                     <div class="setting-item">
                         <span data-i18n="language">Idioma</span>
@@ -984,12 +1287,27 @@
                         </div>
                     </div>
 
-                    <div style="margin-bottom:15px;">
+                    <div style="margin-bottom:15px; display:flex; gap:15px; align-items:center;">
                         <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                             <input type="checkbox" id="edit-finMes"
                                 style="width:18px; height:18px; accent-color:var(--accent);">
                             <span style="color:var(--text-primary); font-size:14px;">Pagar a Fin de Mes</span>
                         </label>
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="edit-mandatory"
+                                style="width:18px; height:18px; accent-color:#e74c3c;">
+                            <span style="color:var(--text-primary); font-size:14px;">Obligatorio</span>
+                        </label>
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Prioridad</label>
+                        <select id="edit-priority" class="agenda-input" style="width:100%;">
+                            <option value="1">🔴 Alta (Inmediato)</option>
+                            <option value="2">🟠 Media (Preventivo)</option>
+                            <option value="3" selected>🟡 Baja (Opcional)</option>
+                        </select>
                     </div>
 
                     <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;">
@@ -1015,6 +1333,65 @@
                             style="background:var(--accent); color:white;">Guardar</button>
                         <button onclick="deleteConcept()" id="btn-delete-concept" class="btn-toggle"
                             style="background:#ef5350; color:white; margin-right:auto;">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL: NOTE / ACTIVITY -->
+            <div id="note-modal"
+                style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
+                <div
+                    style="background:var(--bg-panel); padding:20px; border-radius:12px; width:90%; max-width:400px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top:0; color:var(--text-primary);">Editar Actividad</h3>
+
+                    <input type="hidden" id="note-id">
+
+                    <div style="margin-bottom:15px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Actividad</label>
+                        <input type="text" id="note-input" class="agenda-input" style="width:100%;"
+                            placeholder="Ej. Cancelar suscripción">
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Descripción
+                            (Opcional)</label>
+                        <textarea id="note-desc" class="agenda-input" style="width:100%; height:60px; resize:none;"
+                            placeholder="Detalles..."></textarea>
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <div style="flex:1;">
+                            <label
+                                style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Fecha</label>
+                            <input type="date" id="note-date" class="agenda-input" style="width:100%;">
+                        </div>
+                        <div style="flex:1;">
+                            <label
+                                style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Hora
+                                (Opcional)</label>
+                            <input type="time" id="note-time" class="agenda-input" style="width:100%;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <label
+                            style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Prioridad</label>
+                        <select id="note-priority" class="agenda-input" style="width:100%;">
+                            <option value="1">🔴 Alta</option>
+                            <option value="2">🟠 Media</option>
+                            <option value="3" selected>🟡 Baja</option>
+                        </select>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                        <button onclick="closeNoteModal()" class="btn-toggle"
+                            style="background:transparent; color:var(--text-secondary); border:1px solid var(--border-color);">Cancelar</button>
+                        <button onclick="saveNote()" class="btn-toggle"
+                            style="background:var(--accent); color:white;">Guardar</button>
+                        <button onclick="deleteNoteFromModal()" id="btn-delete-note" class="btn-toggle"
+                            style="background:#ef5350; color:white; margin-right:auto; display:none;">Eliminar</button>
                     </div>
                 </div>
             </div>
@@ -1058,9 +1435,9 @@
         const translations = {
             es: {
                 home: "Inicio",
-                checklist: "Pagos",
+                checklist: "Agenda",
                 calendar: "Calendario",
-                agenda: "Agenda",
+                agenda: "Notas",
                 settings: "Configuración",
                 pending_payments: "Pagos Pendientes",
                 todo_list: "Por Hacer / Citas",
@@ -1103,6 +1480,15 @@
                 delete_concept_confirm: "Delete this concept? Associated history will be lost."
             }
         };
+
+        function getUsername() { return localStorage.getItem('username') || 'Usuario'; }
+        function saveUsername(name) {
+            if (!name.trim()) return;
+            localStorage.setItem('username', name.trim());
+            updateTexts();
+            const elWelcome = document.getElementById('welcome-message');
+            if (elWelcome) elWelcome.textContent = `Hola, ${name.trim()}! 👋`;
+        }
 
         function getLang() { return localStorage.getItem('lang') || 'es'; }
         function t(key) { return translations[getLang()][key] || key; }
@@ -1193,76 +1579,126 @@
                 el.style.display = ''; // Clear inline display styles (fixes locked views)
             });
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             // Show selected
             document.getElementById(viewName).classList.add('active');
 
-            // Update Sidebar Icon - now includes dashboard at index 0
-            const btnIndex = viewName === 'dashboard' ? 0 : viewName === 'checklist' ? 1 : viewName === 'calendar' ? 2 : viewName === 'agenda' ? 3 : 4;
+            // Update Nav
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            if (document.querySelectorAll('.nav-btn')[btnIndex]) {
-                document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
-            }
+            const activeBtn = document.querySelector(`.nav-btn[onclick="switchView('${viewName}')"]`);
+            if (activeBtn) activeBtn.classList.add('active');
 
+            // Header Elements Logic
             const pageTitle = document.getElementById('page-title');
             const dateControls = document.getElementById('date-controls');
-            const filterControls = document.getElementById('filter-controls');
+            const filterToggleBtn = document.getElementById('filter-toggle-btn');
+            const filterOverlay = document.getElementById('filter-overlay');
 
-            // Update Title & Controls visibility
-            // Update Title & Controls visibility
+            // Close overlay when switching
+            if (filterOverlay) {
+                filterOverlay.style.display = 'none';
+                filterOverlay.classList.remove('open');
+            }
+
             if (viewName === 'dashboard') {
-                pageTitle.textContent = t('home');
+                pageTitle.innerText = t('home');
                 dateControls.style.display = 'none';
-                filterControls.style.display = 'none';
+                if (filterToggleBtn) filterToggleBtn.style.display = 'none';
                 renderDashboard();
             } else if (viewName === 'checklist') {
-                pageTitle.textContent = t('checklist');
-                dateControls.style.display = 'flex';
-                filterControls.style.display = 'flex';
-                cargar();
+                pageTitle.innerText = t('view_checklist') || "Mi Agenda";
+                dateControls.style.display = 'none';
+                if (filterToggleBtn) filterToggleBtn.style.display = 'block'; // Show Filter Toggle
+                cargar(); // Refresh list with current filters
             } else if (viewName === 'calendar') {
-                pageTitle.textContent = t('calendar');
+                pageTitle.innerText = t('view_calendar') || "Calendario";
                 dateControls.style.display = 'flex';
-                filterControls.style.display = 'flex';
+                if (filterToggleBtn) filterToggleBtn.style.display = 'none';
                 cargar();
-            } else if (viewName === 'agenda') {
+            } else if (viewName === 'agenda') { // Original agenda view
                 pageTitle.textContent = t('agenda');
                 dateControls.style.display = 'none';
-                filterControls.style.display = 'none';
+                if (filterToggleBtn) filterToggleBtn.style.display = 'none';
                 renderAgenda();
-            } else {
-                pageTitle.textContent = t('settings');
+            } else { // Settings view
+                pageTitle.innerText = t('view_settings') || "Configuración";
                 dateControls.style.display = 'none';
-                filterControls.style.display = 'none';
+                if (filterToggleBtn) filterToggleBtn.style.display = 'none';
+                const uInput = document.getElementById('username-input');
+                if (uInput) uInput.value = getUsername();
             }
+        }
+
+        function toggleAddMenu() {
+            const menu = document.getElementById('add-menu');
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'block';
+            }
+        }
+
+        function toggleFilterOverlay() {
+            const overlay = document.getElementById('filter-overlay');
+            if (overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+                overlay.classList.remove('open');
+            } else {
+                overlay.style.display = 'flex';
+                setTimeout(() => overlay.classList.add('open'), 10); // Trigger anim
+            }
+            // Add listener to close if clicking outside? Maybe later.
         }
 
         /* --- PAYMENT CONCEPTS MANAGEMENT --- */
         function getConcepts() {
-            let concepts = JSON.parse(localStorage.getItem("concepts"));
+            let concepts = [];
+            try {
+                const raw = localStorage.getItem("concepts");
+                if (raw) concepts = JSON.parse(raw);
+            } catch (e) {
+                console.error("Error parsing concepts", e);
+                concepts = [];
+            }
 
-            if (!concepts) {
+            if (!concepts || !Array.isArray(concepts) || concepts.length === 0) {
                 // First run: Initialize all defaults
                 concepts = defaultPagos.map((p, idx) => ({
                     ...p,
                     id: Date.now() + idx,
                     validFrom: "2024-01",
-                    validUntil: null
+                    validUntil: null,
+                    priority: "3",
+                    mandatory: false
                 }));
                 localStorage.setItem("concepts", JSON.stringify(concepts));
             } else {
-                // Sync Check: Ensure all defaultPagos exist (by name)
-                // This handles the case where the USER updates the code (adds 'Universidad') 
-                // but their LocalStorage is old.
+                // Sync Check and Migration
                 let changed = false;
+
+                // Filter out nulls
+                concepts = concepts.filter(c => c);
+
+                // MIGRATION: Backfill missing properties
+                concepts.forEach(c => {
+                    if (!c.validFrom) { c.validFrom = "2024-01"; changed = true; }
+                    if (!c.id) { c.id = Date.now() + Math.floor(Math.random() * 100000); changed = true; }
+                    if (!c.priority) { c.priority = "3"; changed = true; }
+                    if (c.mandatory === undefined) { c.mandatory = false; changed = true; }
+                });
+
+                // Check for new defaults
                 defaultPagos.forEach(def => {
                     const exists = concepts.some(c => c.nombre === def.nombre);
                     if (!exists) {
                         concepts.push({
                             ...def,
-                            id: Date.now() + Math.floor(Math.random() * 1000), // Random offset to avoid ID collision
-                            validFrom: new Date().toISOString().slice(0, 7), // Valid from NOW
-                            validUntil: null
+                            id: Date.now() + Math.floor(Math.random() * 1000),
+                            validFrom: new Date().toISOString().slice(0, 7),
+                            validUntil: null,
+                            priority: "3",
+                            mandatory: false
                         });
                         changed = true;
                     }
@@ -1294,7 +1730,8 @@
         }
 
         function renderConceptsList() {
-            const list = document.getElementById("concepts-list");
+            const list = document.getElementById("listaPagos");
+            if (!list) return;
             list.innerHTML = "";
             const concepts = getConcepts();
 
@@ -1317,9 +1754,13 @@
                 else periodText += ` · Indefinido`;
                 periodText += `</small>`;
 
+                let priorityIndicator = "";
+                // if (c.priority == "1") priorityIndicator = `<span style="color:#e74c3c; margin-right:5px;">🔴</span>`;
+                // else if (c.priority == "2") priorityIndicator = `<span style="color:#f39c12; margin-right:5px;">🟠</span>`;
+
                 div.innerHTML = `
                     <div style="flex:1;">
-                        <span style="font-weight:500">${c.nombre}</span>
+                        <span style="font-weight:500">${c.nombre} ${c.mandatory ? '<span style="color:#c0392b; font-size:11px; border:1px solid #c0392b; padding:1px 4px; border-radius:4px;">Obligatorio</span>' : ''}</span>
                         ${periodText}
                     </div>
                     <span style="font-size:12px; color:var(--text-secondary)">Día ${c.inicio}</span>
@@ -1361,6 +1802,18 @@
                 document.getElementById("btn-delete-concept").style.display = "none";
             }
 
+            // Set fields if new or existing
+            if (id) {
+                const c = concepts.find(x => x.id == id);
+                if (c) {
+                    document.getElementById("edit-mandatory").checked = !!c.mandatory;
+                    document.getElementById("edit-priority").value = c.priority || "3";
+                }
+            } else {
+                document.getElementById("edit-mandatory").checked = false;
+                document.getElementById("edit-priority").value = "3";
+            }
+
             modal.style.display = "flex";
         }
 
@@ -1375,6 +1828,8 @@
             const finStr = document.getElementById("edit-fin").value;
             const fin = finStr ? parseInt(finStr) : null;
             const finMes = document.getElementById("edit-finMes").checked;
+            const mandatory = document.getElementById("edit-mandatory").checked;
+            const priority = document.getElementById("edit-priority").value;
             const validFrom = document.getElementById("edit-validFrom").value;
             const validUntil = document.getElementById("edit-validUntil").value || null;
 
@@ -1389,8 +1844,10 @@
                 id: id ? parseInt(id) : Date.now(),
                 nombre,
                 inicio,
-                fin: fin || (finMes ? null : inicio), // If no end day and not end-of-month, default to start day (1 day window)
+                fin: fin || (finMes ? null : inicio),
                 finMes,
+                mandatory,
+                priority,
                 validFrom,
                 validUntil
             };
@@ -1463,7 +1920,7 @@
                     const data = JSON.parse(e.target.result);
 
                     if (confirm("Al importar se reemplazarán los datos actuales. ¿Deseas continuar?")) {
-                        // Clear current data? Maybe selective overwrite is safer. 
+                        // Clear current data? Maybe selective overwrite is safer.
                         // Let's overwrite known keys.
 
                         if (data.concepts) localStorage.setItem("concepts", JSON.stringify(data.concepts));
@@ -1489,14 +1946,7 @@
         }
 
         /* --- AGENDA LOGIC --- */
-        const agendaList = document.getElementById("agenda-list");
-        const noteIdInput = document.getElementById("note-id");
-        const noteInput = document.getElementById("note-input");
-        const noteDesc = document.getElementById("note-desc");
-        const noteDate = document.getElementById("note-date");
-        const noteTime = document.getElementById("note-time");
-        const btnSaveNote = document.getElementById("btn-save-note");
-        const btnCancelEdit = document.getElementById("btn-cancel-edit");
+        const agendaList = document.getElementById("listaTareas");
 
         function getAgenda() {
             return JSON.parse(localStorage.getItem("agenda")) || [];
@@ -1506,21 +1956,66 @@
             localStorage.setItem("agenda", JSON.stringify(data));
         }
 
-        function saveNote() {
-            const id = noteIdInput.value;
-            const text = noteInput.value.trim();
-            const desc = noteDesc.value.trim();
-            const date = noteDate.value;
-            const time = noteTime.value;
+        function openNoteModal(id = null) {
+            const modal = document.getElementById("note-modal");
+            const btnDelete = document.getElementById("btn-delete-note");
 
-            if (!text) return;
+            document.getElementById("note-id").value = id || "";
+
+            if (id) {
+                const notes = getAgenda();
+                const note = notes.find(n => n.id == id);
+                if (note) {
+                    document.getElementById("note-input").value = note.text;
+                    document.getElementById("note-desc").value = note.desc || "";
+                    document.getElementById("note-date").value = note.date || "";
+                    document.getElementById("note-time").value = note.time || "";
+                    document.getElementById("note-priority").value = note.priority || "3";
+                    btnDelete.style.display = "block";
+                    // We set the onclick dynamically or use the ID in the simplified helper
+                }
+            } else {
+                // New
+                document.getElementById("note-input").value = "";
+                document.getElementById("note-desc").value = "";
+
+                // Default date to today
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                document.getElementById("note-date").value = today;
+
+                document.getElementById("note-time").value = "";
+                document.getElementById("note-priority").value = "3";
+                btnDelete.style.display = "none";
+            }
+
+            modal.style.display = "flex";
+            document.getElementById("note-input").focus();
+        }
+
+        function closeNoteModal() {
+            document.getElementById("note-modal").style.display = "none";
+        }
+
+        function saveNote() {
+            const id = document.getElementById("note-id").value;
+            const text = document.getElementById("note-input").value.trim();
+            const desc = document.getElementById("note-desc").value.trim();
+            const date = document.getElementById("note-date").value;
+            const time = document.getElementById("note-time").value;
+            const priority = document.getElementById("note-priority").value;
+
+            if (!text) {
+                alert("La actividad debe tener un nombre.");
+                return;
+            }
 
             const notes = getAgenda();
 
             if (id) {
                 const index = notes.findIndex(n => n.id == id);
                 if (index !== -1) {
-                    notes[index] = { ...notes[index], text, desc, date, time };
+                    notes[index] = { ...notes[index], text, desc, date, time, priority };
                 }
             } else {
                 const newNote = {
@@ -1528,56 +2023,47 @@
                     text, desc,
                     date: date || null,
                     time: time || null,
+                    priority: priority || "3",
                     completed: false,
+                    skipped: false,
                     created: new Date().toLocaleDateString()
                 };
                 notes.unshift(newNote);
             }
 
             saveAgenda(notes);
-            resetNoteInput();
+            closeNoteModal();
             renderAgenda();
             cargar();
+            renderDashboard();
         }
 
         function editNote(id) {
-            const notes = getAgenda();
-            const note = notes.find(n => n.id == id);
-            if (!note) return;
-
-            noteIdInput.value = note.id;
-            noteInput.value = note.text;
-            noteDesc.value = note.desc || "";
-            noteDate.value = note.date || "";
-            noteTime.value = note.time || "";
-
-            btnSaveNote.textContent = t('update') || "Actualizar";
-            btnCancelEdit.style.display = "block";
-            noteInput.focus();
-            document.querySelector('.view-section.active').scrollTop = 0;
-        }
-
-        function resetNoteInput() {
-            noteIdInput.value = "";
-            noteInput.value = "";
-            noteDesc.value = "";
-            noteDate.value = "";
-            noteTime.value = "";
-            btnSaveNote.textContent = "Guardar";
-            btnCancelEdit.style.display = "none";
+            openNoteModal(id);
         }
 
         function deleteNote(id) {
             if (!confirm(t('delete_note_confirm') || "¿Borrar nota?")) return;
-            const notes = getAgenda().filter(n => n.id !== id);
+            const notes = getAgenda().filter(n => n.id != id);
             saveAgenda(notes);
-            if (noteIdInput.value == id) resetNoteInput();
+            closeNoteModal();
             renderAgenda();
             cargar();
+            renderDashboard();
         }
+
+        function deleteNoteFromModal() {
+            const id = document.getElementById("note-id").value;
+            if (id) deleteNote(id);
+        }
+
+
+
 
         function renderAgenda() {
             const notes = getAgenda();
+            if (!agendaList) return; // Guard clause
+
             agendaList.innerHTML = "";
 
             if (notes.length === 0) {
@@ -1587,23 +2073,51 @@
 
             notes.forEach(n => {
                 const displayDate = n.date ? new Date(n.date).toLocaleDateString() : n.created;
-                const displayTime = n.time ? ` • ⏰ ${n.time}` : "";
+                const displayTime = n.time ? ` • ${n.time}` : "";
                 const descHtml = n.desc ? `<div style="margin-top:5px; font-size:13px; color:var(--text-secondary); white-space:pre-wrap;">${n.desc}</div>` : '';
 
+                // Priority Styles
+                let borderColor = "var(--border-color)";
+                // let priorityIcon = "";
+                if (n.priority == "1") { borderColor = "#e74c3c"; }
+                else if (n.priority == "2") { borderColor = "#f39c12"; }
+
+                // Skipped Style
+                const isSkipped = n.skipped === true;
+                const opacity = isSkipped ? "0.5" : "1";
+                const textDeco = isSkipped ? "line-through" : "none";
+
                 agendaList.innerHTML += `
-                    <div class="note-card">
+                    <div class="note-card" style="border-left: 4px solid ${borderColor}; opacity: ${opacity};">
                         <div class="note-header">
-                            <span>📅 ${displayDate}${displayTime}</span>
+                            <span>${displayDate}${displayTime}</span>
                             <div>
                                 <button class="btn-delete-note" onclick="editNote(${n.id})" style="color:var(--accent); font-size:18px; margin-right:5px;">✎</button>
                                 <button class="btn-delete-note" onclick="deleteNote(${n.id})">×</button>
                             </div>
                         </div>
-                        <div class="note-body" style="font-weight:500;">${n.text}</div>
+                        <div class="note-body" style="font-weight:500; text-decoration:${textDeco};">${n.text}</div>
                         ${descHtml}
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid #eee; display:flex; align-items:center; gap:10px;">
+                             <label style="font-size:12px; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                                <input type="checkbox" onchange="toggleSkipped(${n.id}, this.checked)" ${isSkipped ? 'checked' : ''}>
+                                No realicé esta actividad
+                             </label>
+                        </div>
                     </div>
                 `;
             });
+        }
+
+        function toggleSkipped(id, val) {
+            const notes = getAgenda();
+            const idx = notes.findIndex(n => n.id == id);
+            if (idx !== -1) {
+                notes[idx].skipped = val;
+                saveAgenda(notes);
+                renderAgenda();
+                cargar();
+            }
         }
 
         /* --- DASHBOARD RENDERING --- */
@@ -1618,8 +2132,12 @@
             const elProgressBar = document.getElementById('db-progress-bar');
             const elProgressText = document.getElementById('db-progress-text');
 
-            overdueList.innerHTML = '';
-            upcomingList.innerHTML = '';
+            // Update Welcome Message
+            const elWelcome = document.getElementById('welcome-message');
+            if (elWelcome) elWelcome.textContent = `Hola, ${getUsername()}!`;
+
+            if (overdueList) overdueList.innerHTML = '';
+            if (upcomingList) upcomingList.innerHTML = '';
 
             const now = new Date();
             const currentYear = now.getFullYear();
@@ -1695,7 +2213,7 @@
                     card.innerHTML = `
                         <div class="card-title">${item.name}</div>
                         <div class="card-meta">
-                            <span style="color:var(--status-overdue-text); font-weight:bold;">⚠️ ${diffDays} ${t('days_late')}</span>
+                            <span style="color:var(--status-overdue-text); font-weight:bold;">${diffDays} ${t('days_late')}</span>
                             <span>${t('vencido_hace')} ${item.dueDate.toLocaleDateString()}</span>
                         </div>`;
                     overdueList.appendChild(card);
@@ -1734,7 +2252,7 @@
                     const card = document.createElement('div');
                     card.className = u.type === 'payment' ? 'dashboard-card upcoming' : 'dashboard-card';
                     card.innerHTML = `
-                        <div class="card-title">${u.type === 'payment' ? '💳' : '📅'} ${u.name}</div>
+                        <div class="card-title">${u.name}</div>
                         <div class="card-meta">
                             <span>${u.date.toLocaleDateString()}</span>
                             ${u.time ? `<span>🕐 ${u.time}</span>` : ''}
@@ -1771,8 +2289,8 @@
         /* --- CORE LOGIC (Render) --- */
         function cargar() {
             const calGrid = document.getElementById("calendar-grid");
-            const listaPagos = document.getElementById("lista-pagos");
-            const listaCitas = document.getElementById("lista-citas");
+            const listaPagos = document.getElementById("listaPagos");
+            const listaCitas = document.getElementById("listaTareas");
 
             calGrid.innerHTML = "";
             if (listaPagos) listaPagos.innerHTML = "";
@@ -1783,6 +2301,11 @@
             const key = `${anio}-${mes}`;
             const data = JSON.parse(localStorage.getItem(key)) || {};
             const currentMonthStr = `${anio}-${String(mes + 1).padStart(2, '0')}`;
+
+            const now = new Date();
+            const realYear = now.getFullYear();
+            const realMonth = now.getMonth();
+            const realDay = now.getDate();
 
             // Filters
             const filterType = document.getElementById("filter-type").value;
@@ -1853,46 +2376,57 @@
             // Days
             const firstDay = new Date(anio, mes, 1).getDay();
             const daysInMonth = new Date(anio, mes + 1, 0).getDate();
-            const now = new Date();
 
             // Empty slots
             for (let i = 0; i < firstDay; i++) calGrid.innerHTML += `<div class="day empty"></div>`;
 
-            // Filled slots
-            for (let d = 1; d <= daysInMonth; d++) {
-                const isToday = (d === now.getDate() && mes === now.getMonth() && anio === now.getFullYear());
-                let cellHtml = `<div class="day ${isToday ? 'today' : ''}"><strong style="font-size:12px;display:block;margin-bottom:2px;">${d}</strong>`;
+            // Fill Days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayCell = document.createElement("div");
+                const isToday = (i === realDay && mes === realMonth && anio === realYear);
+                dayCell.className = `day ${isToday ? 'today' : ''}`;
+
+                // Date Number
+                dayCell.innerHTML = `<strong>${i}</strong>`;
+
+                // Container for dots
+                const dotsContainer = document.createElement("div");
+                dotsContainer.className = "dots-container";
 
                 // Items for this day
-                items.forEach(item => {
-                    let applies = false;
-                    if (item.type === 'payment') {
-                        applies = item.finMes ? d >= item.start : (d >= item.start && d <= item.end);
-                    } else {
-                        applies = d === item.start;
+                const dayPayments = items.filter(p => p.type === 'payment' && p.start === i);
+                const dayAppointments = items.filter(a => a.type === 'agenda' && a.start === i);
+
+                // Render Payment Dots
+                dayPayments.forEach(p => {
+                    const dot = document.createElement("div");
+                    dot.className = "gasto"; // Base dot class
+
+                    // Status Logic for Class
+                    if (p.paid) dot.classList.add("pagado");
+                    else {
+                        // Check if overdue
+                        const isPast = (anio < realYear) || (anio === realYear && mes < realMonth) || (anio === realYear && mes === realMonth && i < realDay);
+                        if (isPast) dot.classList.add("vencido");
+                        else dot.classList.add("pendiente");
                     }
 
-                    if (applies) {
-                        let className = "gasto";
-                        let statusColor = "";
-
-                        // Overdue check for payments
-                        const isOverdue = item.type === 'payment' && !item.paid && (anio < now.getFullYear() || (anio === now.getFullYear() && mes < now.getMonth()));
-
-                        if (isOverdue) className += " vencido";
-                        else if (item.paid) className += " pagado";
-                        else className += " pendiente";
-
-                        if (item.type === 'agenda') className += " agenda-item";
-
-                        let label = item.name;
-                        if (item.time) label = `🕒 ${item.time} ${label}`;
-
-                        cellHtml += `<div class="${className}" title="${label}">${label}</div>`;
-                    }
+                    dot.title = `${p.name}`; // Tooltip
+                    dotsContainer.appendChild(dot);
                 });
-                cellHtml += `</div>`;
-                calGrid.innerHTML += cellHtml;
+
+                // Render Appointment Dots
+                dayAppointments.forEach(a => {
+                    const dot = document.createElement("div");
+                    dot.className = "gasto agenda-item"; // Blue dot
+                    if (a.paid) dot.style.opacity = "0.5"; // Completed
+
+                    dot.title = `${a.name}`;
+                    dotsContainer.appendChild(dot);
+                });
+
+                dayCell.appendChild(dotsContainer);
+                calGrid.appendChild(dayCell);
             }
 
             // 4. Render Checklists
@@ -1901,68 +2435,173 @@
             const payments = items.filter(i => i.type === 'payment');
             const appointments = items.filter(i => i.type === 'agenda');
 
+            // --- Helper for Colors ---
+            const getStatusColor = (targetDay, isPaid) => {
+                if (isPaid) return { bg: "var(--status-paid-bg)", border: "var(--status-paid-text)", text: "var(--status-paid-text)" };
+
+                // Logic for Pending
+                const isPastMonth = anio < realYear || (anio === realYear && mes < realMonth);
+                const isFutureMonth = anio > realYear || (anio === realYear && mes > realMonth);
+                const isCurrentMonth = anio === realYear && mes === realMonth;
+
+                if (isPastMonth) return { bg: "var(--chk-bg-overdue)", border: "var(--chk-border-overdue)", text: "var(--chk-text-overdue)" };
+                if (isFutureMonth) return { bg: "var(--chk-bg-future)", border: "var(--chk-border-future)", text: "var(--chk-text-future)" };
+
+                if (isCurrentMonth) {
+                    if (realDay > targetDay) return { bg: "var(--chk-bg-overdue)", border: "var(--chk-border-overdue)", text: "var(--chk-text-overdue)" };
+                    const diff = targetDay - realDay;
+                    if (diff <= 7) return { bg: "var(--chk-bg-upcoming)", border: "var(--chk-border-upcoming)", text: "var(--chk-text-upcoming)" };
+                    return { bg: "var(--chk-bg-future)", border: "var(--chk-border-future)", text: "var(--chk-text-future)" };
+                }
+                return { bg: "var(--bg-panel)", border: "transparent", text: "var(--text-primary)" };
+            };
+
             // Render Payments
-            if (payments.length === 0) listaPagos.innerHTML = `<div class="empty-state">No hay pagos.</div>`;
-            payments.forEach(p => {
-                const div = document.createElement("div");
-                div.className = "item";
-                div.innerHTML = `
-                    <span>${p.name} <small style="color:var(--text-secondary)">(Día ${p.start})</small></span>
-                    <input type="checkbox" ${p.paid ? "checked" : ""}>
-                `;
-                div.querySelector("input").onchange = (e) => {
-                    data[p.id] = e.target.checked;
-                    localStorage.setItem(key, JSON.stringify(data));
-                    cargar();
-                };
-                listaPagos.appendChild(div);
-            });
+            if (payments.length === 0) {
+                listaPagos.innerHTML = `<div class="empty-state">No hay pagos.</div>`;
+            } else {
+                payments.forEach(p => {
+                    const div = document.createElement("div");
+                    const styles = getStatusColor(p.start, p.paid);
+
+                    div.className = "dashboard-card checkbox-card";
+                    div.style.backgroundColor = styles.bg;
+                    div.style.borderLeft = `4px solid ${styles.border}`;
+
+                    div.innerHTML = `
+                        <div class="card-content">
+                            <span class="card-title" style="color:var(--text-primary); font-size:14px;">${p.name} ${p.data.mandatory ? '<span style="color:var(--status-overdue-text);font-weight:bold;margin-left:5px;">!</span>' : ''}</span>
+                            <div class="card-meta" style="color:var(--text-secondary); font-size:11px;">Día ${p.start}</div>
+                        </div>
+                        <div class="card-action">
+                             <input type="checkbox" ${p.paid ? "checked" : ""} class="custom-checkbox">
+                        </div>
+                    `;
+                    div.querySelector("input").onchange = (e) => {
+                        data[p.id] = e.target.checked;
+                        localStorage.setItem(key, JSON.stringify(data));
+                        cargar();
+                    };
+                    listaPagos.appendChild(div);
+                });
+            }
 
             // Render Appointments
-            if (appointments.length === 0) listaCitas.innerHTML = `<div class="empty-state">No hay citas.</div>`;
-            appointments.forEach(a => {
-                const div = document.createElement("div");
-                div.className = "item";
-                div.style.cursor = "default"; // No checkbox for agenda here, controlled in Agenda view mostly
-                // But user asked for checklist. Let's add a "done" checkbox for agenda too?
-                // "Restructure checklist into separate Valid Payments and Todo/Appointments"
-                // Let's add a checkbox that updates 'completed' status for agenda.
+            if (appointments.length === 0) {
+                listaCitas.innerHTML = `<div class="empty-state">No hay citas.</div>`;
+            } else {
+                appointments.forEach(a => {
+                    const div = document.createElement("div");
+                    // Logic for Agenda Colors
+                    let styles = { bg: "var(--chk-bg-default)", border: "transparent", text: "var(--text-primary)" };
 
-                div.innerHTML = `
-                    <span>${a.name} <small>${a.time || ''}</small></span>
-                    <input type="checkbox" ${a.paid ? "checked" : ""}>
-                `;
-                div.querySelector("input").onchange = (e) => {
-                    // Update agenda item
-                    const allNotes = getAgenda();
-                    const idx = allNotes.findIndex(n => n.id == a.id);
-                    if (idx !== -1) {
-                        allNotes[idx].completed = e.target.checked;
-                        localStorage.setItem("agenda", JSON.stringify(allNotes));
-                        cargar();
+                    if (a.paid) { // Completed
+                        styles = { bg: "var(--status-paid-bg)", border: "var(--status-paid-text)", text: "var(--status-paid-text)" };
+                    } else {
+                        // Pending logic
+                        const targetDay = a.start;
+                        const isPastMonth = anio < realYear || (anio === realYear && mes < realMonth);
+                        const isFutureMonth = anio > realYear || (anio === realYear && mes > realMonth);
+                        const isCurrentMonth = anio === realYear && mes === realMonth;
+
+                        if (isPastMonth) styles = { bg: "var(--chk-bg-overdue)", border: "var(--chk-border-overdue)", text: "var(--chk-text-overdue)" };
+                        else if (isFutureMonth) styles = { bg: "var(--chk-bg-future)", border: "var(--chk-border-future)", text: "var(--chk-text-future)" };
+                        else if (isCurrentMonth) {
+                            if (realDay > targetDay) styles = { bg: "var(--chk-bg-overdue)", border: "var(--chk-border-overdue)", text: "var(--chk-text-overdue)" };
+                            else if ((targetDay - realDay) <= 7) styles = { bg: "var(--chk-bg-upcoming)", border: "var(--chk-border-upcoming)", text: "var(--chk-text-upcoming)" };
+                            else styles = { bg: "var(--chk-bg-future)", border: "var(--chk-border-future)", text: "var(--chk-text-future)" };
+                        }
                     }
-                };
-                listaCitas.appendChild(div);
-            });
+
+                    div.className = "dashboard-card checkbox-card";
+                    div.style.backgroundColor = styles.bg;
+                    div.style.borderLeft = `4px solid ${styles.border}`;
+
+                    if (a.data.skipped) {
+                        div.style.opacity = "0.6";
+                        div.style.textDecoration = "line-through";
+                    }
+
+                    div.innerHTML = `
+                        <div class="card-content">
+                            <span class="card-title" style="color:var(--text-primary); font-size:14px;">${a.name}</span>
+                            <div class="card-meta" style="color:var(--text-secondary); font-size:11px;">${a.time || ''}</div>
+                        </div>
+                        <div class="card-action">
+                            <input type="checkbox" ${a.paid ? "checked" : ""} class="custom-checkbox" title="Marcar como Completado">
+                        </div>
+                    `;
+                    div.querySelector("input").onchange = (e) => {
+                        const allNotes = getAgenda();
+                        const idx = allNotes.findIndex(n => n.id == a.id);
+                        if (idx !== -1) {
+                            allNotes[idx].completed = e.target.checked;
+                            localStorage.setItem("agenda", JSON.stringify(allNotes));
+                            cargar();
+                        }
+                    };
+                    listaCitas.appendChild(div);
+                });
+            }
         }
 
         // Events
         mesSel.onchange = cargar;
         anioSel.onchange = cargar;
 
-        // Boostrap
-        initTheme();
-        populateConceptFilter();
+        /* --- DROPDOWN LOGIC --- */
+        function toggleAddMenu() {
+            const menu = document.getElementById('add-menu');
+            if (menu) menu.classList.toggle('show');
+        }
 
-        /* --- CLOUD SYNC --- */
-        // Initial Load
-        renderAgenda();
-        cargar();
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (event) {
+            const menu = document.getElementById('add-menu');
+            const button = document.querySelector('button[onclick="toggleAddMenu()"]');
+            if (menu && button && !menu.contains(event.target) && !button.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
 
-        // Initial Load
-        renderAgenda();
-        cargar();
-        fetchCloudData(); // Try to get latest from cloud
+        /* --- INITIALIZATION --- */
+        function initApp() {
+            try {
+                // 1. Ensure Theme
+                initTheme();
+
+                // 2. Ensure Data Migration & Integrity
+                const concepts = getConcepts();
+                if (!concepts || concepts.length === 0) {
+                    console.warn("No concepts found during init.");
+                }
+
+                // 3. Populate Filters
+                populateConceptFilter();
+
+                // 4. Initial Render
+                renderAgenda();
+
+                // 5. Force Dashboard View
+                // Small delay to ensuring DOM painting if needed, but usually not required with this structure
+                // RequestAF or setTimeout(0)
+                setTimeout(() => {
+                    switchView('dashboard');
+                    renderDashboard(); // Double force render
+                }, 50);
+
+            } catch (error) {
+                console.error("Initialization Failed:", error);
+                alert("Error iniciando la aplicación: " + error.message);
+            }
+        }
+
+        // Run Init
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
 
     </script>
 
